@@ -1,7 +1,7 @@
 name: number_editing_controller
 description: Number Editing Controller - number or amount editing controller
 version: 0.0.1
-homepage: 
+homepage: https://github.com/nerdy-pro/flutter_number_editing_controller
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -16,6 +16,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  dependency_validator: ^3.0.0
+  dart_code_metrics: ^5.7.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
