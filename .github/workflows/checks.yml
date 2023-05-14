@@ -1,0 +1,41 @@
+name: Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: FVM config
+        uses: kuhnroyal/flutter-fvm-config-action@v1
+
+      - name: Configure flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Analyze project source
+        run: flutter analyze
+
+      - name: Run code metrics
+        run: flutter pub run dart_code_metrics:metrics --reporter=github lib
+
+      - name: Analyze project dependencies
+        run: flutter pub run dependency_validator
