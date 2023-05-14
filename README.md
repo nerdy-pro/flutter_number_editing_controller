@@ -1,3 +1,10 @@
+# number_editing_controller
+
+![Pub Version](https://img.shields.io/pub/v/number_editing_controller)
+![GitHub](https://img.shields.io/github/license/nerdy-pro/number_editing_controller)
+
+Missing number input controller for flutter apps
+
 ## Features
 
 - formats as-you-type text fields as numbers (decimals, currency or integers)
