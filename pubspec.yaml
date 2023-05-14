@@ -1,6 +1,6 @@
 name: number_editing_controller
 description: Number Editing Controller - number or amount editing controller
-version: 0.0.1
+version: 1.0.0
 homepage: https://github.com/nerdy-pro/flutter_number_editing_controller
 
 environment:
