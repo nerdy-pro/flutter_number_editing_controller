@@ -31,5 +31,6 @@ FilteredTextWithSelectionResult filterStringWithSelection({
       }
     }
   }
+
   return FilteredTextWithSelectionResult(temp, selection);
 }

@@ -32,8 +32,13 @@ extension NumberFormatPartExt on String {
       }
       if (c.content.isNumberPart) {
         if (passedDecimalSeparator && hasDecimalPart) {
-          result.add(DecimalPart(
-              minDecimalPart, maxDecimalPart, decimalSeparatorSign));
+          result.add(
+            DecimalPart(
+              minDecimalPart,
+              maxDecimalPart,
+              decimalSeparatorSign,
+            ),
+          );
         }
         if (!passedDecimalSeparator) {
           final content = c.content;
@@ -84,6 +89,7 @@ class _PartChunk {
         return _PartChunk(s);
       }
     }
+
     return _PartChunk(s);
   }
 }

@@ -41,6 +41,7 @@ class ParsedNumberFormat {
     final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
     final pattern = symbols.CURRENCY_PATTERN;
+
     return ParsedNumberFormat._withMask(
       mask: pattern,
       locale: currentLocale,
@@ -62,6 +63,7 @@ class ParsedNumberFormat {
     final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
     final pattern = symbols.DECIMAL_PATTERN;
+
     return ParsedNumberFormat._withMask(
       mask: pattern,
       locale: currentLocale,
@@ -96,6 +98,7 @@ class ParsedNumberFormat {
       decimalSeparatorSign: decimalSeparator ?? symbols.DECIMAL_SEP,
       groupSeparatorSign: groupSeparator ?? symbols.GROUP_SEP,
     );
+
     return ParsedNumberFormat._(parts);
   }
 
@@ -119,8 +122,11 @@ class ParsedNumberFormat {
     }
     if (charPosition != result.text.length) {
       result = result.replaced(
-          TextRange(start: charPosition, end: result.text.length), '');
+        TextRange(start: charPosition, end: result.text.length),
+        '',
+      );
     }
+
     return FormatResult(result, number);
   }
 
@@ -183,31 +189,46 @@ String? verifiedLocale(String? newLocale, bool Function(String) localeExists) {
   if (localeExists(newLocale)) {
     return newLocale;
   }
-  for (var each in [
+  for (final each in [
     canonicalizedLocale(newLocale),
     shortLocale(newLocale),
-    'fallback'
+    'fallback',
   ]) {
     if (localeExists(each)) {
       return each;
     }
   }
+
   return newLocale;
 }
 
 String canonicalizedLocale(String? aLocale) {
-  if (aLocale == null) return Intl.getCurrentLocale();
-  if (aLocale == 'C') return 'en_ISO';
-  if (aLocale.length < 5) return aLocale;
-  if (aLocale[2] != '-' && (aLocale[2] != '_')) return aLocale;
+  if (aLocale == null) {
+    return Intl.getCurrentLocale();
+  }
+  if (aLocale == 'C') {
+    return 'en_ISO';
+  }
+  if (aLocale.length < 5) {
+    return aLocale;
+  }
+  if (aLocale[2] != '-' && (aLocale[2] != '_')) {
+    return aLocale;
+  }
   var region = aLocale.substring(3);
 // If it's longer than three it's something odd, so don't touch it.
-  if (region.length <= 3) region = region.toUpperCase();
+  if (region.length <= 3) {
+    region = region.toUpperCase();
+  }
+
   return '${aLocale[0]}${aLocale[1]}_$region';
 }
 
 /// Return the short version of a locale name, e.g. 'en_US' => 'en'
 String shortLocale(String aLocale) {
-  if (aLocale.length < 2) return aLocale;
+  if (aLocale.length < 2) {
+    return aLocale;
+  }
+
   return aLocale.substring(0, 2).toLowerCase();
 }

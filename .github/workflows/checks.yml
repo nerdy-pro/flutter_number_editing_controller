@@ -33,20 +33,15 @@ jobs:
 
       - name: Analyze project source
         run: flutter analyze
-        continue-on-error: true
 
       - name: Check unused files
         run: flutter pub run dart_code_metrics:metrics check-unused-files lib
-        continue-on-error: true
 
       - name: Check unused code
         run: flutter pub run dart_code_metrics:metrics check-unused-code lib
-        continue-on-error: true
 
       - name: Check unused l10n
         run: flutter pub run dart_code_metrics:metrics check-unused-l10n lib
-        continue-on-error: true
 
       - name: Analyze project dependencies
         run: flutter pub run dependency_validator
-        continue-on-error: true

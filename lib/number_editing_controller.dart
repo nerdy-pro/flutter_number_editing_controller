@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:number_editing_controller/parsed_number_format/parsed_number_format.dart';
 
 class NumberEditingTextController extends TextEditingController {
-  final ParsedNumberFormat format;
+  final ParsedNumberFormat _format;
 
   num? _number;
 
@@ -12,7 +12,7 @@ class NumberEditingTextController extends TextEditingController {
     num? value,
     String? decimalSeparator,
     String? groupSeparator,
-  }) : format = ParsedNumberFormat.currency(
+  }) : _format = ParsedNumberFormat.currency(
           locale: locale,
           currencyName: currencyName,
           decimalSeparator: decimalSeparator,
@@ -28,7 +28,7 @@ class NumberEditingTextController extends TextEditingController {
     num? value,
     String? decimalSeparator,
     String? groupSeparator,
-  }) : format = ParsedNumberFormat.decimal(
+  }) : _format = ParsedNumberFormat.decimal(
           locale: locale,
           minimalFractionDigits: minimalFractionDigits,
           maximumFractionDigits: maximumFractionDigits,
@@ -43,7 +43,7 @@ class NumberEditingTextController extends TextEditingController {
   set number(num? number) {
     _number = number;
     super.value = value.copyWith(
-      text: number == null ? '' : format.formatString(number),
+      text: number == null ? '' : _format.formatString(number),
       selection: const TextSelection.collapsed(offset: -1),
       composing: TextRange.empty,
     );
@@ -51,7 +51,7 @@ class NumberEditingTextController extends TextEditingController {
 
   @override
   set value(TextEditingValue newValue) {
-    final result = format.formatValue(newValue);
+    final result = _format.formatValue(newValue);
     _number = result.number;
     super.value = result.value;
   }

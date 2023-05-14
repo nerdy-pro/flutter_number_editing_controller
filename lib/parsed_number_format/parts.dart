@@ -52,6 +52,7 @@ class StaticPart extends NumberFormatPart {
       }
       i++;
     }
+
     return FormatResult(v, i, 0);
   }
 
@@ -97,7 +98,9 @@ class RealPart extends NumberFormatPart {
       final char = v.text[position + i];
       if (g is WithGrouping && char == g.groupingSymbol) {
         v = v.replaced(
-            TextRange(start: position + i, end: position + i + 1), '');
+          TextRange(start: position + i, end: position + i + 1),
+          '',
+        );
         i--;
         continue;
       }
@@ -118,8 +121,10 @@ class RealPart extends NumberFormatPart {
       final realPartLength = i;
       for (var j = 0; j < realPartLength; j++) {
         if (j != 0 && j % g.groupSize == 0) {
-          v = v.replaced(TextRange.collapsed(position + realPartLength - j),
-              g.groupingSymbol);
+          v = v.replaced(
+            TextRange.collapsed(position + realPartLength - j),
+            g.groupingSymbol,
+          );
           i++;
         }
       }
@@ -128,6 +133,7 @@ class RealPart extends NumberFormatPart {
       v = v.replaced(TextRange.collapsed(position + i), '0');
       i++;
     }
+
     return FormatResult(v, i, number);
   }
 
@@ -165,6 +171,7 @@ class DecimalPart extends NumberFormatPart {
         maxLength + decimalSeparator.length,
       );
     }
+
     return VariablePartLength(
       minLength + decimalSeparator.length,
       maxLength + decimalSeparator.length,
@@ -188,7 +195,9 @@ class DecimalPart extends NumberFormatPart {
       }
       if (v.text[position + i].isDigit) {
         v = v.replaced(
-            TextRange(start: position + i, end: position + i + 1), '');
+          TextRange(start: position + i, end: position + i + 1),
+          '',
+        );
         continue;
       }
       finished = true;
@@ -201,6 +210,7 @@ class DecimalPart extends NumberFormatPart {
       v = v.replaced(TextRange.collapsed(position + i), suffix);
       i += suffix.length;
     }
+
     return FormatResult(v, i, number);
   }
 
@@ -233,6 +243,7 @@ extension on String {
     for (var i = 0; i < times; i++) {
       result.write(this);
     }
+
     return result.toString();
   }
 }
