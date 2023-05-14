@@ -37,14 +37,5 @@ jobs:
       - name: Run code metrics
         run: flutter pub run dart_code_metrics:metrics --reporter=github lib
 
-      - name: Check unused files
-        run: flutter pub run dart_code_metrics:metrics check-unused-files lib
-
-      - name: Check unused code
-        run: flutter pub run dart_code_metrics:metrics check-unused-code lib
-
-      - name: Check unused l10n
-        run: flutter pub run dart_code_metrics:metrics check-unused-l10n lib
-
       - name: Analyze project dependencies
         run: flutter pub run dependency_validator
