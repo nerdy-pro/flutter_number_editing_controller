@@ -75,6 +75,25 @@ class ParsedNumberFormat {
     );
   }
 
+  factory ParsedNumberFormat.integer({
+    String? locale,
+    String? groupSeparator,
+  }) {
+    final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
+    final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
+    final pattern = symbols.DECIMAL_PATTERN;
+
+    return ParsedNumberFormat._withMask(
+      mask: pattern,
+      locale: currentLocale,
+      symbols: symbols,
+      minimalFractionDigits: 0,
+      maximumFractionDigits: 0,
+      decimalSeparator: symbols.DECIMAL_SEP,
+      groupSeparator: groupSeparator,
+    );
+  }
+
   factory ParsedNumberFormat._withMask({
     required String mask,
     required String locale,
@@ -139,7 +158,10 @@ class ParsedNumberFormat {
         continue;
       }
       if (part is RealPart) {
-        final stringValue = value.toInt().toString();
+        if (value < 0) {
+          result.write('-');
+        }
+        final stringValue = value.abs().toInt().toString();
         final grouping = part.grouping;
         if (grouping is NoGrouping) {
           result.write(stringValue);

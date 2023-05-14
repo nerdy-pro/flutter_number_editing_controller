@@ -26,4 +26,30 @@ void main() {
     expect(controller.value, const TextEditingValue(text: '-5.000,5 £'));
     expect(controller.number, -5000.5);
   });
+  test('some decimal', () {
+    final controller = NumberEditingTextController.decimal(
+      locale: 'de',
+      maximumFractionDigits: 6,
+    );
+    controller.number = -100.51241;
+    expect(controller.value, const TextEditingValue(text: '-100,51241'));
+    expect(controller.number, -100.51241);
+  });
+  test('some decimal but provided integer', () {
+    final controller = NumberEditingTextController.decimal(
+      locale: 'de',
+      maximumFractionDigits: 6,
+    );
+    controller.number = -1100;
+    expect(controller.value, const TextEditingValue(text: '-1.100'));
+    expect(controller.number, -1100);
+  });
+  test('some integer', () {
+    final controller = NumberEditingTextController.integer(
+      locale: 'de',
+    );
+    controller.number = -100;
+    expect(controller.value, const TextEditingValue(text: '-100'));
+    expect(controller.number, -100);
+  });
 }

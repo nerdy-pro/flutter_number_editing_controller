@@ -38,12 +38,24 @@ class NumberEditingTextController extends TextEditingController {
     number = value;
   }
 
+  NumberEditingTextController.integer({
+    String? locale,
+    num? value,
+    String? groupSeparator,
+  }) : _format = ParsedNumberFormat.integer(
+          locale: locale,
+          groupSeparator: groupSeparator,
+        ) {
+    number = value;
+  }
+
   num? get number => _number;
 
   set number(num? number) {
     _number = number;
+    final text = number == null ? '' : _format.formatString(number);
     super.value = value.copyWith(
-      text: number == null ? '' : _format.formatString(number),
+      text: text,
       selection: const TextSelection.collapsed(offset: -1),
       composing: TextRange.empty,
     );
