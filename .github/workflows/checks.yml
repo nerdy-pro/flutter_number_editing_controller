@@ -34,6 +34,9 @@ jobs:
       - name: Analyze project source
         run: flutter analyze
 
+      - name: Run code metrics
+        run: flutter pub run dart_code_metrics:metrics --reporter=github lib
+
       - name: Check unused files
         run: flutter pub run dart_code_metrics:metrics check-unused-files lib
 
