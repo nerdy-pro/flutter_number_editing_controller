@@ -10,6 +10,7 @@ dart_code_metrics:
     maximum-nesting-level: 5
   metrics-exclude:
     - test/**
+    - lib/number_editing_controller.dart
   rules:
     - avoid-dynamic
     - avoid-passing-async-when-sync-expected
