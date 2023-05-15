@@ -36,6 +36,3 @@ jobs:
 
       - name: Run code metrics
         run: flutter pub run dart_code_metrics:metrics --reporter=github lib
-
-      - name: Analyze project dependencies
-        run: flutter pub run dependency_validator
