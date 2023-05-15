@@ -10,6 +10,7 @@ Missing number input controller for flutter apps
 - formats as-you-type text fields as numbers (decimals, currency or integers)
 - extracts `num` value from the input
 - an example with `final controller = NumberEditingTextController.currency(currencyName: 'JPY');` controller
+
 ![iPhone 14](https://github.com/nerdy-pro/flutter_number_editing_controller/blob/main/img/screenshot.gif)
 
 
@@ -25,17 +26,21 @@ flutter pub add number_editing_controller
 ## Usage
 
 - first you should define your controller
-    - integer input
+
+### integer input
+
 ```dart
 final controller = NumberEditingTextController.integer();
 ```
 
-    - decimal input
+### decimal input
+
 ```dart
 final controller = NumberEditingTextController.decimal();
 ```
 
-    - currency amount input
+### currency amount input
+
 ```dart
 final controller = NumberEditingTextController.currency();
 ```
