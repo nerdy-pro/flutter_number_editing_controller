@@ -1,4 +1,3 @@
-//ignore_for_file: unused-files
 import 'package:flutter/widgets.dart';
 import 'package:number_editing_controller/parsed_number_format/parsed_number_format.dart';
 
@@ -7,6 +6,13 @@ class NumberEditingTextController extends TextEditingController {
 
   num? _number;
 
+  /// Creates a controller instance suitable for formatting input as a money amount
+  ///
+  /// [locale] - locale to be used for number formatting, defaults to [Intl.getCurrentLocale()]
+  /// [currencyName] - 3-symbol currency code (ex. USD, EUR, TRY)
+  /// [value] - optional initial value
+  /// [decimalSeparator] - symbol used to separate decimal part
+  /// [groupSeparator] - symbol used to group number
   NumberEditingTextController.currency({
     String? locale,
     String? currencyName,
@@ -22,6 +28,14 @@ class NumberEditingTextController extends TextEditingController {
     number = value;
   }
 
+  /// Creates a controller instance suitable for formatting input as a decimal
+  ///
+  /// [locale] - locale to be used for number formatting, defaults to [Intl.getCurrentLocale()]
+  /// [minimalFractionDigits] - minimal fraction digits
+  /// [maximumFractionDigits] - maximal fraction digits
+  /// [value] - optional initial value
+  /// [decimalSeparator] - symbol used to separate decimal part
+  /// [groupSeparator] - symbol used to group number
   NumberEditingTextController.decimal({
     String? locale,
     int? minimalFractionDigits,
@@ -39,6 +53,11 @@ class NumberEditingTextController extends TextEditingController {
     number = value;
   }
 
+  /// Creates a controller instance suitable for formatting input as an integer
+  ///
+  /// [locale] - locale to be used for number formatting, defaults to [Intl.getCurrentLocale()]
+  /// [value] - optional initial value
+  /// [groupSeparator] - symbol used to group number
   NumberEditingTextController.integer({
     String? locale,
     num? value,
@@ -50,8 +69,10 @@ class NumberEditingTextController extends TextEditingController {
     number = value;
   }
 
+  /// Extracts the underlying number value
   num? get number => _number;
 
+  /// Sets the underlying number value
   set number(num? number) {
     _number = number;
     final text = number == null ? '' : _format.formatString(number);
