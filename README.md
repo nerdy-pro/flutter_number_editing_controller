@@ -25,6 +25,10 @@ flutter pub add number_editing_controller
 
 ## Usage
 
+
+
+Working example can be found in [/example](https://github.com/nerdy-pro/flutter_number_editing_controller/tree/main/example) directory
+
 - first you should define your controller
 
 ### integer input
