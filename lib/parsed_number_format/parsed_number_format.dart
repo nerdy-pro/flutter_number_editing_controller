@@ -137,7 +137,14 @@ class ParsedNumberFormat {
       final partResult = part.format(result, charPosition);
       charPosition += partResult.offset;
       result = partResult.value;
-      number += partResult.number;
+      final resultNumber = partResult.number;
+      if (resultNumber != null) {
+        number += resultNumber;
+      } else if (part is RealPart) {
+        return FormatResult(result, null);
+      } else if (part is DecimalPart) {
+        // do nothing
+      }
     }
     if (charPosition != result.text.length) {
       result = result.replaced(

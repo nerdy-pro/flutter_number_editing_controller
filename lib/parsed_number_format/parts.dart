@@ -5,7 +5,7 @@ import 'package:number_editing_controller/parsed_number_format/part_length.dart'
 class FormatResult {
   final TextEditingValue value;
   final int offset;
-  final num number;
+  final num? number;
 
   FormatResult(this.value, this.offset, this.number);
 
@@ -96,7 +96,13 @@ class RealPart extends NumberFormatPart {
 
     while ((position + i) < v.text.length && !finished) {
       final char = v.text[position + i];
+      final nextChar =
+          v.text.length == position + i + 1 ? null : v.text[position + i + 1];
       if (g is WithGrouping && char == g.groupingSymbol) {
+        if (nextChar == null || !nextChar.isDigit) {
+          finished = true;
+          continue;
+        }
         v = v.replaced(
           TextRange(start: position + i, end: position + i + 1),
           '',
@@ -114,8 +120,12 @@ class RealPart extends NumberFormatPart {
       }
       finished = true;
     }
+    if (i == 0) {
+      return FormatResult(v, 0, null);
+    }
     if (i != 0) {
-      number = num.parse(v.text.substring(position, position + i));
+      final numberText = v.text.substring(position, position + i);
+      number = num.parse(numberText);
     }
     if (i != 0 && g is WithGrouping) {
       final realPartLength = i;
