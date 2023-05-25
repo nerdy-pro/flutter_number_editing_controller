@@ -9,3 +9,7 @@
 ## 1.0.2
 
 * Fixed a bug with zero-input deletion
+
+## 1.1.0
+
+* Added a flag to allow only unsigned input

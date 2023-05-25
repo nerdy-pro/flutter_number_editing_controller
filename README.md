@@ -52,6 +52,8 @@ final controller = NumberEditingTextController.currency();
 - optionally you can provide `locale` to use locale-based formatting
 - for `currency()` there's also `currencyName` parameter available
 
+- you can set `allowNegative` to `false` to allow only unsigned input
+
 - set this `controller` as the controller for the target `TextField`
 - now the `TextField` would filter out all non-integer symbols
 - you can extract the value with `controller.number`
