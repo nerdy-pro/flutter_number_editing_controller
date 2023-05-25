@@ -78,8 +78,9 @@ class CurrencySignPart extends StaticPart {
 
 class RealPart extends NumberFormatPart {
   final Grouping grouping;
+  final bool allowNegative;
 
-  RealPart(this.grouping);
+  RealPart(this.grouping, this.allowNegative);
 
   @override
   PartLength get length => AtLeastPartLength(1);
@@ -111,7 +112,14 @@ class RealPart extends NumberFormatPart {
         continue;
       }
       if ('-' == char && i == 0) {
-        i++;
+        if (!allowNegative) {
+          v = v.replaced(
+            TextRange(start: position + i, end: position + i + 1),
+            '',
+          );
+        } else {
+          i++;
+        }
         continue;
       }
       if (char.isDigit) {
@@ -125,7 +133,7 @@ class RealPart extends NumberFormatPart {
     }
     if (i != 0) {
       final numberText = v.text.substring(position, position + i);
-      number = num.parse(numberText);
+      number = numberText == '-' ? 0 : num.parse(numberText);
     }
     if (i != 0 && g is WithGrouping) {
       final realPartLength = i;

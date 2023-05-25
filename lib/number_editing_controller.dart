@@ -13,17 +13,20 @@ class NumberEditingTextController extends TextEditingController {
   /// [value] - optional initial value
   /// [decimalSeparator] - symbol used to separate decimal part
   /// [groupSeparator] - symbol used to group number
+  /// [allowNegative] - allow negative number input
   NumberEditingTextController.currency({
     String? locale,
     String? currencyName,
     num? value,
     String? decimalSeparator,
     String? groupSeparator,
+    bool allowNegative = true,
   }) : _format = ParsedNumberFormat.currency(
           locale: locale,
           currencyName: currencyName,
           decimalSeparator: decimalSeparator,
           groupSeparator: groupSeparator,
+          allowNegative: allowNegative,
         ) {
     number = value;
   }
@@ -36,6 +39,7 @@ class NumberEditingTextController extends TextEditingController {
   /// [value] - optional initial value
   /// [decimalSeparator] - symbol used to separate decimal part
   /// [groupSeparator] - symbol used to group number
+  /// [allowNegative] - allow negative number input
   NumberEditingTextController.decimal({
     String? locale,
     int? minimalFractionDigits,
@@ -43,12 +47,14 @@ class NumberEditingTextController extends TextEditingController {
     num? value,
     String? decimalSeparator,
     String? groupSeparator,
+    bool allowNegative = true,
   }) : _format = ParsedNumberFormat.decimal(
           locale: locale,
           minimalFractionDigits: minimalFractionDigits,
           maximumFractionDigits: maximumFractionDigits,
           decimalSeparator: decimalSeparator,
           groupSeparator: groupSeparator,
+          allowNegative: allowNegative,
         ) {
     number = value;
   }
@@ -58,13 +64,16 @@ class NumberEditingTextController extends TextEditingController {
   /// [locale] - locale to be used for number formatting, defaults to [Intl.getCurrentLocale()]
   /// [value] - optional initial value
   /// [groupSeparator] - symbol used to group number
+  /// [allowNegative] - allow negative number input
   NumberEditingTextController.integer({
     String? locale,
     num? value,
     String? groupSeparator,
+    bool allowNegative = true,
   }) : _format = ParsedNumberFormat.integer(
           locale: locale,
           groupSeparator: groupSeparator,
+          allowNegative: allowNegative,
         ) {
     number = value;
   }

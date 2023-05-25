@@ -31,12 +31,14 @@ class FormatResult {
 
 class ParsedNumberFormat {
   final List<NumberFormatPart> parts;
+  final bool _allowNegative;
 
   factory ParsedNumberFormat.currency({
     String? locale,
     String? currencyName,
     String? decimalSeparator,
     String? groupSeparator,
+    bool allowNegative = true,
   }) {
     final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
@@ -50,6 +52,7 @@ class ParsedNumberFormat {
       minimalFractionDigits: 0,
       decimalSeparator: decimalSeparator,
       groupSeparator: groupSeparator,
+      allowNegative: allowNegative,
     );
   }
 
@@ -59,6 +62,7 @@ class ParsedNumberFormat {
     int? maximumFractionDigits,
     String? decimalSeparator,
     String? groupSeparator,
+    bool allowNegative = true,
   }) {
     final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
@@ -72,12 +76,14 @@ class ParsedNumberFormat {
       maximumFractionDigits: maximumFractionDigits,
       decimalSeparator: decimalSeparator,
       groupSeparator: groupSeparator,
+      allowNegative: allowNegative,
     );
   }
 
   factory ParsedNumberFormat.integer({
     String? locale,
     String? groupSeparator,
+    bool allowNegative = true,
   }) {
     final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
@@ -91,6 +97,7 @@ class ParsedNumberFormat {
       maximumFractionDigits: 0,
       decimalSeparator: symbols.DECIMAL_SEP,
       groupSeparator: groupSeparator,
+      allowNegative: allowNegative,
     );
   }
 
@@ -103,6 +110,7 @@ class ParsedNumberFormat {
     String? currencyName,
     String? decimalSeparator,
     String? groupSeparator,
+    required bool allowNegative,
   }) {
     final currencyCode = currencyName ?? symbols.DEF_CURRENCY_CODE;
     final format = NumberFormat(mask);
@@ -116,12 +124,13 @@ class ParsedNumberFormat {
       currencySign: currencySymbol,
       decimalSeparatorSign: decimalSeparator ?? symbols.DECIMAL_SEP,
       groupSeparatorSign: groupSeparator ?? symbols.GROUP_SEP,
+      allowNegative: allowNegative,
     );
 
-    return ParsedNumberFormat._(parts);
+    return ParsedNumberFormat._(parts, allowNegative);
   }
 
-  ParsedNumberFormat._(this.parts);
+  ParsedNumberFormat._(this.parts, this._allowNegative);
 
   FormatResult formatValue(TextEditingValue textEditingValue) {
     var result = textEditingValue;
@@ -165,7 +174,7 @@ class ParsedNumberFormat {
         continue;
       }
       if (part is RealPart) {
-        if (value < 0) {
+        if (value < 0 && _allowNegative) {
           result.write('-');
         }
         final stringValue = value.abs().toInt().toString();

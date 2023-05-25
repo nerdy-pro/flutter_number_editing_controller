@@ -56,7 +56,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _controller = NumberEditingTextController.currency(currencyName: 'JPY');
+  final _controller = NumberEditingTextController.currency(
+    currencyName: 'JPY',
+    allowNegative: false,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 textAlign: TextAlign.center,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
-                  signed: false,
+                  signed: true,
                 ),
                 controller: _controller,
               ),

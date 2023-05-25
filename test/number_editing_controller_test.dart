@@ -109,4 +109,74 @@ void main() {
     );
     expect(controller.number, null);
   });
+
+  test(
+    'disallow negative input with currency symbol before input',
+    () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'ja',
+        allowNegative: false,
+      );
+
+      controller.value = controller.value.copyWith(
+        text: '-',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(
+        controller.value,
+        const TextEditingValue(
+          text: '\$',
+          selection: TextSelection.collapsed(offset: 1),
+        ),
+      );
+
+      controller.value = controller.value.copyWith(
+        text: '\$-',
+        selection: const TextSelection.collapsed(offset: 2),
+      );
+      expect(
+        controller.value,
+        const TextEditingValue(
+          text: '\$',
+          selection: TextSelection.collapsed(offset: 1),
+        ),
+      );
+    },
+  );
+
+  test(
+    'disallow negative input with currency symbol after input',
+    () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'UAH',
+        locale: 'uk',
+        allowNegative: false,
+      );
+
+      controller.value = controller.value.copyWith(
+        text: '-',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(
+        controller.value,
+        const TextEditingValue(
+          text: '',
+          selection: TextSelection.collapsed(offset: 0),
+        ),
+      );
+
+      controller.value = controller.value.copyWith(
+        text: '0',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(
+        controller.value,
+        const TextEditingValue(
+          text: '0 ₴',
+          selection: TextSelection.collapsed(offset: 3),
+        ),
+      );
+    },
+  );
 }

@@ -9,6 +9,7 @@ extension NumberFormatPartExt on String {
     required String currencySign,
     required String decimalSeparatorSign,
     required String groupSeparatorSign,
+    required bool allowNegative,
   }) {
     final chunks = <_PartChunk>[];
     var i = 0;
@@ -44,9 +45,16 @@ extension NumberFormatPartExt on String {
           final content = c.content;
           if (content.contains(',') && groupSeparatorSign.isNotEmpty) {
             final grouping = content.split(',').last.length;
-            result.add(RealPart(WithGrouping(grouping, groupSeparatorSign)));
+            result.add(
+              RealPart(
+                WithGrouping(grouping, groupSeparatorSign),
+                allowNegative,
+              ),
+            );
           } else {
-            result.add(RealPart(NoGrouping()));
+            result.add(
+              RealPart(NoGrouping(), allowNegative),
+            );
           }
         }
       } else {
