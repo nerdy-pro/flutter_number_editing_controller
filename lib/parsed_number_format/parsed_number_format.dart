@@ -36,6 +36,7 @@ class ParsedNumberFormat {
   factory ParsedNumberFormat.currency({
     String? locale,
     String? currencyName,
+    String? currencySymbol,
     String? decimalSeparator,
     String? groupSeparator,
     bool allowNegative = true,
@@ -49,6 +50,7 @@ class ParsedNumberFormat {
       locale: currentLocale,
       symbols: symbols,
       currencyName: currencyName,
+      currencySymbol: currencySymbol,
       minimalFractionDigits: 0,
       decimalSeparator: decimalSeparator,
       groupSeparator: groupSeparator,
@@ -108,20 +110,22 @@ class ParsedNumberFormat {
     int? minimalFractionDigits,
     int? maximumFractionDigits,
     String? currencyName,
+    String? currencySymbol,
     String? decimalSeparator,
     String? groupSeparator,
     required bool allowNegative,
   }) {
     final currencyCode = currencyName ?? symbols.DEF_CURRENCY_CODE;
     final format = NumberFormat(mask);
-    final currencySymbol = format.simpleCurrencySymbol(currencyCode);
+    final resolvedCurrencySymbol =
+        currencySymbol ?? format.simpleCurrencySymbol(currencyCode);
     final min = minimalFractionDigits ?? format.minimumFractionDigits;
     final max = maximumFractionDigits ?? format.maximumFractionDigits;
 
     final parts = mask.getNumberFormatParts(
       minDecimalPart: min,
       maxDecimalPart: max,
-      currencySign: currencySymbol,
+      currencySign: resolvedCurrencySymbol,
       decimalSeparatorSign: decimalSeparator ?? symbols.DECIMAL_SEP,
       groupSeparatorSign: groupSeparator ?? symbols.GROUP_SEP,
       allowNegative: allowNegative,

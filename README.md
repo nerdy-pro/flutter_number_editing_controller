@@ -50,7 +50,7 @@ final controller = NumberEditingTextController.currency();
 ```
 
 - optionally you can provide `locale` to use locale-based formatting
-- for `currency()` there's also `currencyName` parameter available
+- for `currency()` there's also `currencyName` and `currencySymbol` parameters available
 
 - you can set `allowNegative` to `false` to allow only unsigned input
 

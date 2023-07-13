@@ -10,6 +10,7 @@ class NumberEditingTextController extends TextEditingController {
   ///
   /// [locale] - locale to be used for number formatting, defaults to [Intl.getCurrentLocale()]
   /// [currencyName] - 3-symbol currency code (ex. USD, EUR, TRY)
+  /// [currencySymbol] - currency symbol (ex. $, €, ₺)
   /// [value] - optional initial value
   /// [decimalSeparator] - symbol used to separate decimal part
   /// [groupSeparator] - symbol used to group number
@@ -17,6 +18,7 @@ class NumberEditingTextController extends TextEditingController {
   NumberEditingTextController.currency({
     String? locale,
     String? currencyName,
+    String? currencySymbol,
     num? value,
     String? decimalSeparator,
     String? groupSeparator,
@@ -24,6 +26,7 @@ class NumberEditingTextController extends TextEditingController {
   }) : _format = ParsedNumberFormat.currency(
           locale: locale,
           currencyName: currencyName,
+          currencySymbol: currencySymbol,
           decimalSeparator: decimalSeparator,
           groupSeparator: groupSeparator,
           allowNegative: allowNegative,

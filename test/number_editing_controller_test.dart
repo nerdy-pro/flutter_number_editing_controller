@@ -179,4 +179,19 @@ void main() {
       );
     },
   );
+
+  test(
+    'overriden currency symbol',
+    () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'TRY',
+        locale: 'es_ES',
+        currencySymbol: '₺',
+        allowNegative: false,
+      );
+      controller.number = 6612.54;
+      expect(controller.value, const TextEditingValue(text: '6.612,54 ₺'));
+      expect(controller.number, 6612.54);
+    },
+  );
 }
