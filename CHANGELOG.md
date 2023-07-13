@@ -13,3 +13,7 @@
 ## 1.1.0
 
 * Added a flag to allow only unsigned input
+
+## 1.2.0
+
+* Added an optional `currencySymbol` parameter
