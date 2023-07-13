@@ -17,3 +17,7 @@
 ## 1.2.0
 
 * Added an optional `currencySymbol` parameter
+
+## 1.2.1
+
+* Updated docs
