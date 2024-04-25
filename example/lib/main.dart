@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:number_editing_controller/number_editing_controller.dart';
+import 'package:number_editing_controller_example/variants/currency_input.dart';
+import 'package:number_editing_controller_example/variants/decimal_input.dart';
+import 'package:number_editing_controller_example/variants/integer_input.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,45 +58,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _controller = NumberEditingTextController.currency(
-    currencyName: 'JPY',
-    allowNegative: false,
-  );
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have entered:',
-            ),
-            ValueListenableBuilder(
-              valueListenable: _controller,
-              builder: (context, value, child) {
-                return Text(
-                  '${_controller.number ?? 0}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                textAlign: TextAlign.center,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                  signed: true,
-                ),
-                controller: _controller,
-              ),
-            ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Currency'),
+              Tab(text: 'Integer'),
+              Tab(text: 'Double'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            CurrencyInput(),
+            IntegerInput(),
+            DecimalInput(),
           ],
         ),
       ),
