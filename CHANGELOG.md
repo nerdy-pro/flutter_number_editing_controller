@@ -21,3 +21,9 @@
 ## 1.2.1
 
 * Updated docs
+
+## 1.3.0
+
+* Fixed documentation
+* Updated flutter
+* Updated dependencies
