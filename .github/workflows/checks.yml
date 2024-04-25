@@ -2,9 +2,9 @@ name: Checks
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   build-push-deploy:
@@ -14,16 +14,17 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: FVM config
-        uses: kuhnroyal/flutter-fvm-config-action@v1
+        id: fvm-config-action
+        uses: kuhnroyal/flutter-fvm-config-action@v2
 
       - name: Configure flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
 
       - name: Install dependencies
         run: flutter pub get
@@ -33,6 +34,3 @@ jobs:
 
       - name: Analyze project source
         run: flutter analyze
-
-      - name: Run code metrics
-        run: flutter pub run dart_code_metrics:metrics --reporter=github lib
