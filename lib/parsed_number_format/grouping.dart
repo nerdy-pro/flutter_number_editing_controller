@@ -25,7 +25,9 @@ class WithGrouping extends Grouping {
 
 class NoGrouping extends Grouping {
   @override
-  bool operator ==(Object other) => identical(this, other) || other is NoGrouping && runtimeType == other.runtimeType;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NoGrouping && runtimeType == other.runtimeType;
 
   @override
   int get hashCode => 0;
