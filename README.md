@@ -11,7 +11,7 @@ Missing number input controller for flutter apps
 - extracts `num` value from the input
 - an example with `final controller = NumberEditingTextController.currency(currencyName: 'JPY');` controller
 
-![iPhone 14](https://github.com/nerdy-pro/flutter_number_editing_controller/blob/main/img/screenshot.gif)
+![iPhone 14](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/screenshot.gif)
 
 
 ## Getting started
