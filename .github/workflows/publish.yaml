@@ -10,10 +10,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Publish
-        uses: sakebook/actions-flutter-pub-publisher@v1.4.1
+
+
+      - name: FVM config
+        id: fvm-config-action
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+
+      - name: Configure flutter
+        uses: subosito/flutter-action@v2
         with:
-          credential: ${{ secrets.PUB_CREDENTIALS_JSON }}
-          flutter_package: true
-          skip_test: false
-          dry_run: false
+          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
+
+      - name: Copy credentials
+        run: |
+          mkdir -p ~/Library/Application\ Support/dart |
+          cat <<EOF > ~/Library/Application\ Support/dart/pub-credentials.json ${{ secrets.PUB_CREDENTIALS_JSON }} EOF |
+          mkdir -p ~/.pub-cache |
+          ln -s ~/Library/Application\ Support/dart/pub-credentials.json credentials.json
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Publish
+        run: flutter pub publish -f
