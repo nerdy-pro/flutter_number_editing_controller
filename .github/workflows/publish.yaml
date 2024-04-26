@@ -6,6 +6,8 @@ on:
 
 jobs:
   publish:
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,17 +18,9 @@ jobs:
         id: fvm-config-action
         uses: kuhnroyal/flutter-fvm-config-action@v2
 
-      - name: Configure flutter
-        uses: subosito/flutter-action@v2
+      - uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
         with:
-          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
-          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
-
-      - name: Copy credentials
-        run: |
-          mkdir -p ~/Library/Application\ Support/dart
-          echo "${{ secrets.PUB_CREDENTIALS_JSON }}" >> ~/Library/Application\ Support/dart/pub-credentials.json
-          mkdir -p ~/.pub-cache
+          environment: pub.dev
 
       - name: Pub get
         run: flutter pub get
