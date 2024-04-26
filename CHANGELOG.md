@@ -27,3 +27,7 @@
 * Fixed documentation
 * Updated flutter
 * Updated dependencies
+
+## 1.3.1
+ 
+* Updated library layout
