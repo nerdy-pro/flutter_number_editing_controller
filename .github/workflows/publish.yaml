@@ -5,22 +5,38 @@ on:
     types: [ published ]
 
 jobs:
-  publish:
-    permissions:
-      id-token: write
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-
       - name: FVM config
         id: fvm-config-action
         uses: kuhnroyal/flutter-fvm-config-action@v2
 
-      - uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+
+
+  publish:
+    needs: setup
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      environment: pub.dev
+
+  flutter-publish:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure flutter
+        uses: subosito/flutter-action@v2
         with:
-          environment: pub.dev
+          flutter-version: ${{ needs.setup.outputs.FLUTTER_VERSION || '' }}
+          channel: ${{ needs.setup.outputs.FLUTTER_CHANNEL || 'stable' }}
 
       - name: Pub get
         run: flutter pub get
