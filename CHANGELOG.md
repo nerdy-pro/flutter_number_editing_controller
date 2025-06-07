@@ -31,3 +31,7 @@
 ## 1.3.1
  
 * Updated library layout
+
+## 1.4.0
+
+* Updated dependencies and flutter version
