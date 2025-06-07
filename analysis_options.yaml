@@ -1,28 +1,5 @@
 include: package:flutter_lints/flutter.yaml
 
-analyzer: 
-  plugins:
-    - dart_code_metrics
-dart_code_metrics:
-  metrics:
-    cyclomatic-complexity: 20
-    number-of-parameters: 6
-    maximum-nesting-level: 7
-  metrics-exclude:
-    - test/**
-  rules:
-    - avoid-dynamic
-    - avoid-passing-async-when-sync-expected
-    - avoid-unnecessary-type-assertions
-    - avoid-unnecessary-type-casts
-    - avoid-unrelated-type-assertions
-    - avoid-unused-parameters
-    - avoid-nested-conditional-expressions
-    - newline-before-return
-    - no-boolean-literal-compare
-    - prefer-trailing-comma
-    - prefer-conditional-expressions
-    - no-equal-then-else
 linter:
   rules:
     - prefer_single_quotes
