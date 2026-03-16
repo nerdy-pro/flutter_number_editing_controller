@@ -224,7 +224,7 @@ class DecimalPart extends NumberFormatPart {
       number = num.parse('0.${v.text.substring(position + 1, position + i)}');
     }
     if (i == 0 && minLength != 0) {
-      final suffix = '$decimalSeparator${'0'.repeat(minLength)}';
+      final suffix = '$decimalSeparator${'0' * minLength}';
       v = v.replaced(TextRange.collapsed(position + i), suffix);
       i += suffix.length;
     }
@@ -253,15 +253,9 @@ class DecimalPart extends NumberFormatPart {
 
 extension on String {
   bool get isDigit {
-    return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].contains(this);
-  }
-
-  String repeat(int times) {
-    final result = StringBuffer();
-    for (var i = 0; i < times; i++) {
-      result.write(this);
-    }
-
-    return result.toString();
+    final codeUnit = codeUnitAt(0);
+    return length == 1 &&
+        codeUnit >= 0x30 && // '0'
+        codeUnit <= 0x39; // '9'
   }
 }
