@@ -7,25 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  publish:
-
+  publish-dry-run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
 
       - name: Configure flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-
-      - name: Copy credentials
-        run: |
-          mkdir -p ~/Library/Application\ Support/dart
-          echo "${{ secrets.PUB_CREDENTIALS_JSON }}" >> ~/Library/Application\ Support/dart/pub-credentials.json
-          mkdir -p ~/.pub-cache
 
       - name: Pub get
         run: flutter pub get
