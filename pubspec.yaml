@@ -1,11 +1,17 @@
 name: number_editing_controller
-description: Number Editing Controller - number or amount editing controller
+description: A TextEditingController that formats numbers, decimals, and currencies as you type with locale support.
 version: 1.4.0
-homepage: https://github.com/nerdy-pro/flutter_number_editing_controller
+repository: https://github.com/nerdy-pro/flutter_number_editing_controller
+
+topics:
+  - text-field
+  - number-format
+  - currency
+  - input
 
 environment:
   sdk: ">=2.19.6 <4.0.0"
-  flutter: ">=1.17.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
