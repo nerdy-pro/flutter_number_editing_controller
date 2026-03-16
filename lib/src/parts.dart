@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:number_editing_controller/src/grouping.dart';
 import 'package:number_editing_controller/src/part_length.dart';
 
-class FormatResult {
+class PartFormatResult {
   final TextEditingValue value;
   final int offset;
   final num? number;
 
-  FormatResult(this.value, this.offset, this.number);
+  PartFormatResult(this.value, this.offset, this.number);
 
   @override
   String toString() {
-    return 'FormatResult{value: $value, offset: $offset, number: $number}';
+    return 'PartFormatResult{value: $value, offset: $offset, number: $number}';
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FormatResult &&
+      other is PartFormatResult &&
           runtimeType == other.runtimeType &&
           value == other.value &&
           offset == other.offset &&
@@ -30,7 +30,7 @@ class FormatResult {
 abstract class NumberFormatPart {
   PartLength get length;
 
-  FormatResult format(TextEditingValue value, int position);
+  PartFormatResult format(TextEditingValue value, int position);
 }
 
 class StaticPart extends NumberFormatPart {
@@ -42,7 +42,7 @@ class StaticPart extends NumberFormatPart {
   StaticPart(this.content);
 
   @override
-  FormatResult format(TextEditingValue value, int position) {
+  PartFormatResult format(TextEditingValue value, int position) {
     var i = 0;
     var v = value;
     while (i < content.length && (position + i) <= v.text.length) {
@@ -53,7 +53,7 @@ class StaticPart extends NumberFormatPart {
       i++;
     }
 
-    return FormatResult(v, i, 0);
+    return PartFormatResult(v, i, 0);
   }
 
   @override
@@ -86,7 +86,7 @@ class RealPart extends NumberFormatPart {
   PartLength get length => AtLeastPartLength(1);
 
   @override
-  FormatResult format(TextEditingValue value, int position) {
+  PartFormatResult format(TextEditingValue value, int position) {
     var i = 0;
     var v = value;
     var finished = false;
@@ -129,7 +129,7 @@ class RealPart extends NumberFormatPart {
       finished = true;
     }
     if (i == 0) {
-      return FormatResult(v, 0, null);
+      return PartFormatResult(v, 0, null);
     }
     if (i != 0) {
       final numberText = v.text.substring(position, position + i);
@@ -152,7 +152,7 @@ class RealPart extends NumberFormatPart {
       i++;
     }
 
-    return FormatResult(v, i, number);
+    return PartFormatResult(v, i, number);
   }
 
   @override
@@ -197,7 +197,7 @@ class DecimalPart extends NumberFormatPart {
   }
 
   @override
-  FormatResult format(TextEditingValue value, int position) {
+  PartFormatResult format(TextEditingValue value, int position) {
     var i = 0;
     var v = value;
     var finished = false;
@@ -229,7 +229,7 @@ class DecimalPart extends NumberFormatPart {
       i += suffix.length;
     }
 
-    return FormatResult(v, i, number);
+    return PartFormatResult(v, i, number);
   }
 
   @override
