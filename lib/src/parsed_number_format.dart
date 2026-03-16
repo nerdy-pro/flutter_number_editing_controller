@@ -152,6 +152,7 @@ class ParsedNumberFormat {
     }
 
     num number = 0;
+    var isNegative = false;
 
     for (final part in parts) {
       final partResult = part.format(result, charPosition);
@@ -159,7 +160,21 @@ class ParsedNumberFormat {
       result = partResult.value;
       final resultNumber = partResult.number;
       if (resultNumber != null) {
-        number += resultNumber;
+        if (part is RealPart && resultNumber <= 0) {
+          // Check if the formatted text contains a minus sign
+          final partText = result.text.substring(
+            charPosition - partResult.offset,
+            charPosition,
+          );
+          if (partText.startsWith('-')) {
+            isNegative = true;
+          }
+        }
+        if (isNegative && part is DecimalPart) {
+          number -= resultNumber;
+        } else {
+          number += resultNumber;
+        }
       } else if (part is RealPart) {
         return FormatResult(result, null);
       } else if (part is DecimalPart) {
@@ -177,6 +192,9 @@ class ParsedNumberFormat {
   }
 
   String formatString(num value) {
+    if (value is double && (value.isNaN || value.isInfinite)) {
+      return '';
+    }
     final result = StringBuffer();
 
     for (final part in parts) {
