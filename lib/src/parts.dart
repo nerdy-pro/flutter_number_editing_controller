@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:number_editing_controller/parsed_number_format/grouping.dart';
-import 'package:number_editing_controller/parsed_number_format/part_length.dart';
+import 'package:number_editing_controller/src/grouping.dart';
+import 'package:number_editing_controller/src/part_length.dart';
 
 class FormatResult {
   final TextEditingValue value;
