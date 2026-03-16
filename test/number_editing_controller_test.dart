@@ -693,4 +693,131 @@ void main() {
       expect(controller.number, 7);
     });
   });
+
+  group('bug fixes', () {
+    test('negative decimal via typing produces correct number', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-5.14',
+        selection: const TextSelection.collapsed(offset: 5),
+      );
+      expect(controller.number, -5.14);
+    });
+
+    test('negative decimal via typing with various values', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 4,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-0.5',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+      expect(controller.number, -0.5);
+
+      controller.value = controller.value.copyWith(
+        text: '-100.99',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.number, -100.99);
+
+      controller.value = controller.value.copyWith(
+        text: '-1.0001',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.number, -1.0001);
+    });
+
+    test('negative currency via typing produces correct number', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: '-25.75',
+        selection: const TextSelection.collapsed(offset: 6),
+      );
+      expect(controller.number, -25.75);
+    });
+
+    test('group separator at start of input does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      // Should not throw RangeError
+      controller.value = controller.value.copyWith(
+        text: ',5',
+        selection: const TextSelection.collapsed(offset: 2),
+      );
+      expect(controller.number, isNotNull);
+    });
+
+    test('group separator alone does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: ',',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      // Should not crash; number may be null or 0
+      expect(controller.number, anyOf(isNull, equals(0)));
+    });
+
+    test('NaN does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      expect(
+        () => controller.number = double.nan,
+        returnsNormally,
+      );
+    });
+
+    test('infinity does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      expect(
+        () => controller.number = double.infinity,
+        returnsNormally,
+      );
+    });
+
+    test('negative infinity does not crash', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      expect(
+        () => controller.number = double.negativeInfinity,
+        returnsNormally,
+      );
+    });
+
+    test('typing negative 6+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-100000',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.value.text, '-100,000');
+      expect(controller.number, -100000);
+    });
+
+    test('typing negative 7+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-1000000',
+        selection: const TextSelection.collapsed(offset: 8),
+      );
+      expect(controller.value.text, '-1,000,000');
+      expect(controller.number, -1000000);
+    });
+
+    test('typing negative 10+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-1234567890',
+        selection: const TextSelection.collapsed(offset: 11),
+      );
+      expect(controller.value.text, '-1,234,567,890');
+      expect(controller.number, -1234567890);
+    });
+  });
 }
