@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:number_editing_controller/src/grouping.dart';
-import 'package:number_editing_controller/src/part_length.dart';
 
 /// The result of formatting a single [NumberFormatPart].
 class PartFormatResult {
@@ -36,9 +35,6 @@ class PartFormatResult {
 
 /// A segment of a number format pattern that knows how to format its portion of input.
 abstract class NumberFormatPart {
-  /// The length constraints of this part.
-  PartLength get length;
-
   /// Formats the input [value] starting at [position] and returns the result.
   PartFormatResult format(TextEditingValue value, int position);
 }
@@ -47,9 +43,6 @@ abstract class NumberFormatPart {
 class StaticPart extends NumberFormatPart {
   /// The static text content.
   final String content;
-
-  @override
-  PartLength get length => DeterminedPartLength(content.length);
 
   StaticPart(this.content);
 
@@ -84,12 +77,6 @@ class StaticPart extends NumberFormatPart {
   }
 }
 
-/// A [StaticPart] that represents a currency symbol.
-class CurrencySignPart extends StaticPart {
-  /// Creates a currency sign part with the given symbol [content].
-  CurrencySignPart(super.content);
-}
-
 /// A part that represents the integer portion of a number.
 class RealPart extends NumberFormatPart {
   /// The digit grouping configuration.
@@ -100,9 +87,6 @@ class RealPart extends NumberFormatPart {
 
   /// Creates a [RealPart] with the given [grouping] and [allowNegative] flag.
   RealPart(this.grouping, this.allowNegative);
-
-  @override
-  PartLength get length => AtLeastPartLength(1);
 
   @override
   PartFormatResult format(TextEditingValue value, int position) {
@@ -203,24 +187,6 @@ class DecimalPart extends NumberFormatPart {
 
   /// Creates a [DecimalPart] with the given length bounds and [decimalSeparator].
   DecimalPart(this.minLength, this.maxLength, this.decimalSeparator);
-
-  @override
-  PartLength get length {
-    if (minLength == 0 && maxLength == 0) {
-      return DeterminedPartLength(0);
-    }
-    if (minLength == 0 && maxLength != 0) {
-      return VariablePartLength(
-        0,
-        maxLength + decimalSeparator.length,
-      );
-    }
-
-    return VariablePartLength(
-      minLength + decimalSeparator.length,
-      maxLength + decimalSeparator.length,
-    );
-  }
 
   @override
   PartFormatResult format(TextEditingValue value, int position) {

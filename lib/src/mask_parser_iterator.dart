@@ -66,7 +66,7 @@ extension NumberFormatPartExt on String {
                 result.add(StaticPart(content));
                 content = '';
               }
-              result.add(CurrencySignPart(currencySign));
+              result.add(StaticPart(currencySign));
             } else {
               content += char;
             }
