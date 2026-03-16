@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:number_editing_controller/parsed_number_format/grouping.dart';
-import 'package:number_editing_controller/parsed_number_format/parts.dart';
+import 'package:number_editing_controller/src/grouping.dart';
+import 'package:number_editing_controller/src/parts.dart';
 
 extension NumberFormatPartExt on String {
   List<NumberFormatPart> getNumberFormatParts({

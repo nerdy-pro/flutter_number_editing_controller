@@ -2,9 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-import 'package:number_editing_controller/parsed_number_format/grouping.dart';
-import 'package:number_editing_controller/parsed_number_format/mask_parser_iterator.dart';
-import 'package:number_editing_controller/parsed_number_format/parts.dart';
+import 'package:number_editing_controller/src/grouping.dart';
+import 'package:number_editing_controller/src/mask_parser_iterator.dart';
+import 'package:number_editing_controller/src/parts.dart';
 
 class FormatResult {
   final TextEditingValue value;

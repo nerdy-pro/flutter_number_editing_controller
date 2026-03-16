@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:number_editing_controller/parsed_number_format/parsed_number_format.dart';
+import 'package:number_editing_controller/src/parsed_number_format.dart';
 
 class NumberEditingTextController extends TextEditingController {
   final ParsedNumberFormat _format;
