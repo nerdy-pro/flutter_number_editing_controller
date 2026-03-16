@@ -41,7 +41,7 @@ class ParsedNumberFormat {
     String? groupSeparator,
     bool allowNegative = true,
   }) {
-    final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
+    final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
     final pattern = symbols.CURRENCY_PATTERN;
 
@@ -66,7 +66,7 @@ class ParsedNumberFormat {
     String? groupSeparator,
     bool allowNegative = true,
   }) {
-    final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
+    final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
     final pattern = symbols.DECIMAL_PATTERN;
 
@@ -87,7 +87,7 @@ class ParsedNumberFormat {
     String? groupSeparator,
     bool allowNegative = true,
   }) {
-    final currentLocale = verifiedLocale(locale, NumberFormat.localeExists)!;
+    final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
     final pattern = symbols.DECIMAL_PATTERN;
 
@@ -224,16 +224,16 @@ class ParsedNumberFormat {
   }
 }
 
-String? verifiedLocale(String? newLocale, bool Function(String) localeExists) {
+String? _verifiedLocale(String? newLocale, bool Function(String) localeExists) {
   if (newLocale == null) {
-    return verifiedLocale(Intl.getCurrentLocale(), localeExists);
+    return _verifiedLocale(Intl.getCurrentLocale(), localeExists);
   }
   if (localeExists(newLocale)) {
     return newLocale;
   }
   for (final each in [
-    canonicalizedLocale(newLocale),
-    shortLocale(newLocale),
+    _canonicalizedLocale(newLocale),
+    _shortLocale(newLocale),
     'fallback',
   ]) {
     if (localeExists(each)) {
@@ -244,7 +244,7 @@ String? verifiedLocale(String? newLocale, bool Function(String) localeExists) {
   return newLocale;
 }
 
-String canonicalizedLocale(String? aLocale) {
+String _canonicalizedLocale(String? aLocale) {
   if (aLocale == null) {
     return Intl.getCurrentLocale();
   }
@@ -267,7 +267,7 @@ String canonicalizedLocale(String? aLocale) {
 }
 
 /// Return the short version of a locale name, e.g. 'en_US' => 'en'
-String shortLocale(String aLocale) {
+String _shortLocale(String aLocale) {
   if (aLocale.length < 2) {
     return aLocale;
   }
