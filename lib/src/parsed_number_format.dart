@@ -6,10 +6,15 @@ import 'package:number_editing_controller/src/grouping.dart';
 import 'package:number_editing_controller/src/mask_parser_iterator.dart';
 import 'package:number_editing_controller/src/parts.dart';
 
+/// The result of formatting a [TextEditingValue] through [ParsedNumberFormat].
 class FormatResult {
+  /// The formatted text editing value.
   final TextEditingValue value;
+
+  /// The numeric value extracted from the input, or `null` if empty or invalid.
   final num? number;
 
+  /// Creates a [FormatResult] with the given [value] and [number].
   FormatResult(this.value, this.number);
 
   @override
@@ -29,7 +34,9 @@ class FormatResult {
   int get hashCode => value.hashCode ^ number.hashCode;
 }
 
+/// Parses and formats numbers according to locale-aware ICU number format patterns.
 class ParsedNumberFormat {
+  /// The ordered list of format parts that make up this number format.
   final List<NumberFormatPart> parts;
   final bool _allowNegative;
 
@@ -258,7 +265,7 @@ String _canonicalizedLocale(String? aLocale) {
     return aLocale;
   }
   var region = aLocale.substring(3);
-// If it's longer than three it's something odd, so don't touch it.
+  // If it's longer than three, it's something odd, so don't touch it.
   if (region.length <= 3) {
     region = region.toUpperCase();
   }
@@ -266,7 +273,7 @@ String _canonicalizedLocale(String? aLocale) {
   return '${aLocale[0]}${aLocale[1]}_$region';
 }
 
-/// Return the short version of a locale name, e.g. 'en_US' => 'en'
+/// Returns the short version of a locale name, e.g. 'en_US' => 'en'.
 String _shortLocale(String aLocale) {
   if (aLocale.length < 2) {
     return aLocale;
