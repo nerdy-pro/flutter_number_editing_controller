@@ -258,7 +258,7 @@ String _canonicalizedLocale(String? aLocale) {
     return aLocale;
   }
   var region = aLocale.substring(3);
-// If it's longer than three it's something odd, so don't touch it.
+  // If it's longer than three, it's something odd, so don't touch it.
   if (region.length <= 3) {
     region = region.toUpperCase();
   }
@@ -266,7 +266,7 @@ String _canonicalizedLocale(String? aLocale) {
   return '${aLocale[0]}${aLocale[1]}_$region';
 }
 
-/// Return the short version of a locale name, e.g. 'en_US' => 'en'
+/// Returns the short version of a locale name, e.g. 'en_US' => 'en'.
 String _shortLocale(String aLocale) {
   if (aLocale.length < 2) {
     return aLocale;
