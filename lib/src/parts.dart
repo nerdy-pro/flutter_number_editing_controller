@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:number_editing_controller/src/grouping.dart';
 import 'package:number_editing_controller/src/part_length.dart';
 
+/// The result of formatting a single [NumberFormatPart].
 class PartFormatResult {
+  /// The updated text editing value after formatting.
   final TextEditingValue value;
+
+  /// The number of characters consumed by this part.
   final int offset;
+
+  /// The numeric value extracted from this part, or `null` if none.
   final num? number;
 
+  /// Creates a [PartFormatResult] with the given [value], [offset], and [number].
   PartFormatResult(this.value, this.offset, this.number);
 
   @override
@@ -27,13 +34,18 @@ class PartFormatResult {
   int get hashCode => value.hashCode ^ offset.hashCode ^ number.hashCode;
 }
 
+/// A segment of a number format pattern that knows how to format its portion of input.
 abstract class NumberFormatPart {
+  /// The length constraints of this part.
   PartLength get length;
 
+  /// Formats the input [value] starting at [position] and returns the result.
   PartFormatResult format(TextEditingValue value, int position);
 }
 
+/// A part that represents static text (e.g. spaces or punctuation).
 class StaticPart extends NumberFormatPart {
+  /// The static text content.
   final String content;
 
   @override
@@ -72,14 +84,21 @@ class StaticPart extends NumberFormatPart {
   }
 }
 
+/// A [StaticPart] that represents a currency symbol.
 class CurrencySignPart extends StaticPart {
+  /// Creates a currency sign part with the given symbol [content].
   CurrencySignPart(super.content);
 }
 
+/// A part that represents the integer portion of a number.
 class RealPart extends NumberFormatPart {
+  /// The digit grouping configuration.
   final Grouping grouping;
+
+  /// Whether negative numbers are allowed.
   final bool allowNegative;
 
+  /// Creates a [RealPart] with the given [grouping] and [allowNegative] flag.
   RealPart(this.grouping, this.allowNegative);
 
   @override
@@ -171,11 +190,18 @@ class RealPart extends NumberFormatPart {
   int get hashCode => grouping.hashCode;
 }
 
+/// A part that represents the fractional/decimal portion of a number.
 class DecimalPart extends NumberFormatPart {
+  /// The minimum number of decimal digits.
   final int minLength;
+
+  /// The maximum number of decimal digits.
   final int maxLength;
+
+  /// The decimal separator symbol (e.g. '.' or ',').
   final String decimalSeparator;
 
+  /// Creates a [DecimalPart] with the given length bounds and [decimalSeparator].
   DecimalPart(this.minLength, this.maxLength, this.decimalSeparator);
 
   @override

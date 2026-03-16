@@ -1,9 +1,15 @@
+/// Configuration for how digits are grouped in formatted numbers.
 abstract class Grouping {}
 
+/// Groups digits using a separator symbol at a fixed interval.
 class WithGrouping extends Grouping {
+  /// The number of digits per group.
   final int groupSize;
+
+  /// The symbol used to separate groups (e.g. ',' or ' ').
   final String groupingSymbol;
 
+  /// Creates a grouping with the given [groupSize] and [groupingSymbol].
   WithGrouping(this.groupSize, this.groupingSymbol);
 
   @override
@@ -23,6 +29,7 @@ class WithGrouping extends Grouping {
   int get hashCode => groupSize.hashCode ^ groupingSymbol.hashCode;
 }
 
+/// No digit grouping applied.
 class NoGrouping extends Grouping {
   @override
   bool operator ==(Object other) =>
