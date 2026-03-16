@@ -16,15 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FVM config
-        id: fvm-config-action
-        uses: kuhnroyal/flutter-fvm-config-action@v2
-
       - name: Configure flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
-          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
