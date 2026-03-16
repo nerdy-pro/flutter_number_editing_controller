@@ -12,6 +12,12 @@ class _IntegerInputState extends State<IntegerInput> {
   final _controller = NumberEditingTextController.integer(allowNegative: false);
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
