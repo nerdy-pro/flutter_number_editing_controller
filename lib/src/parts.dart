@@ -53,7 +53,18 @@ class StaticPart extends NumberFormatPart {
     while (i < content.length && (position + i) <= v.text.length) {
       if ((position + i) == v.text.length ||
           content[i] != v.text[position + i]) {
-        v = v.replaced(TextRange.collapsed(position + i), content[i]);
+        // Check if the expected character exists right after (user inserted
+        // a character before the static content). If so, remove the inserted
+        // character instead of inserting the expected one.
+        if ((position + i + 1) < v.text.length &&
+            content[i] == v.text[position + i + 1]) {
+          v = v.replaced(
+            TextRange(start: position + i, end: position + i + 1),
+            '',
+          );
+        } else {
+          v = v.replaced(TextRange.collapsed(position + i), content[i]);
+        }
       }
       i++;
     }
