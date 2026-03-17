@@ -194,6 +194,7 @@ class CurrencyEditingController extends TextEditingController
   String? _currencyName;
   String? _currencySymbol;
   String? _decimalSeparator;
+  bool _showCurrencySymbol;
 
   @override
   late ParsedNumberFormat _format;
@@ -207,9 +208,11 @@ class CurrencyEditingController extends TextEditingController
     String? decimalSeparator,
     String? groupSeparator,
     bool allowNegative = true,
+    bool showCurrencySymbol = true,
   })  : _currencyName = currencyName,
         _currencySymbol = currencySymbol,
-        _decimalSeparator = decimalSeparator {
+        _decimalSeparator = decimalSeparator,
+        _showCurrencySymbol = showCurrencySymbol {
     _locale = locale;
     _groupSeparator = groupSeparator;
     _allowNegative = allowNegative;
@@ -253,6 +256,37 @@ class CurrencyEditingController extends TextEditingController
     _rebuildFormat();
   }
 
+  /// Whether the currency symbol is shown in the formatted text.
+  ///
+  /// When `false`, the currency symbol and its separator are hidden.
+  /// This is useful when the symbol is displayed as a prefix or suffix
+  /// widget outside the text field.
+  ///
+  /// Defaults to `true`.
+  bool get showCurrencySymbol => _showCurrencySymbol;
+  set showCurrencySymbol(bool value) {
+    if (_showCurrencySymbol == value) {
+      return;
+    }
+    _showCurrencySymbol = value;
+    _rebuildFormat();
+  }
+
+  /// The resolved currency symbol used for formatting.
+  ///
+  /// Returns the custom [currencySymbol] if set, otherwise the symbol
+  /// derived from [currencyName] and [locale].
+  String get resolvedCurrencySymbol => ParsedNumberFormat.resolvedSymbol(
+        locale: _locale,
+        currencyName: _currencyName,
+        currencySymbol: _currencySymbol,
+      );
+
+  /// Whether the currency symbol is placed before or after the number
+  /// in the current locale.
+  CurrencySymbolPosition get currencySymbolPosition =>
+      ParsedNumberFormat.symbolPosition(locale: _locale);
+
   @override
   ParsedNumberFormat _buildFormat() => ParsedNumberFormat.currency(
         locale: _locale,
@@ -261,6 +295,7 @@ class CurrencyEditingController extends TextEditingController
         decimalSeparator: _decimalSeparator,
         groupSeparator: _groupSeparator,
         allowNegative: _allowNegative,
+        showCurrencySymbol: _showCurrencySymbol,
       );
 }
 

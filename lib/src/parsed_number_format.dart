@@ -6,6 +6,15 @@ import 'package:number_editing_controller/src/grouping.dart';
 import 'package:number_editing_controller/src/mask_parser_iterator.dart';
 import 'package:number_editing_controller/src/parts.dart';
 
+/// Whether the currency symbol is placed before or after the number.
+enum CurrencySymbolPosition {
+  /// The symbol appears before the number (e.g. `$100`).
+  prefix,
+
+  /// The symbol appears after the number (e.g. `100 €`).
+  suffix,
+}
+
 /// The result of formatting a [TextEditingValue] through [ParsedNumberFormat].
 class FormatResult {
   /// The formatted text editing value.
@@ -47,6 +56,7 @@ class ParsedNumberFormat {
     String? decimalSeparator,
     String? groupSeparator,
     bool allowNegative = true,
+    bool showCurrencySymbol = true,
   }) {
     final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
     final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
@@ -62,6 +72,7 @@ class ParsedNumberFormat {
       decimalSeparator: decimalSeparator,
       groupSeparator: groupSeparator,
       allowNegative: allowNegative,
+      showCurrencySymbol: showCurrencySymbol,
     );
   }
 
@@ -121,6 +132,7 @@ class ParsedNumberFormat {
     String? decimalSeparator,
     String? groupSeparator,
     required bool allowNegative,
+    bool showCurrencySymbol = true,
   }) {
     final currencyCode = currencyName ?? symbols.DEF_CURRENCY_CODE;
     final format = NumberFormat(mask);
@@ -129,7 +141,7 @@ class ParsedNumberFormat {
     final min = minimalFractionDigits ?? format.minimumFractionDigits;
     final max = maximumFractionDigits ?? format.maximumFractionDigits;
 
-    final parts = mask.getNumberFormatParts(
+    var parts = mask.getNumberFormatParts(
       minDecimalPart: min,
       maxDecimalPart: max,
       currencySign: resolvedCurrencySymbol,
@@ -138,10 +150,48 @@ class ParsedNumberFormat {
       allowNegative: allowNegative,
     );
 
+    if (!showCurrencySymbol) {
+      parts = parts.where((p) => p is! StaticPart).toList();
+    }
+
     return ParsedNumberFormat._(parts, allowNegative);
   }
 
   ParsedNumberFormat._(this.parts, this._allowNegative);
+
+  /// Resolves the currency symbol for the given parameters.
+  static String resolvedSymbol({
+    String? locale,
+    String? currencyName,
+    String? currencySymbol,
+  }) {
+    if (currencySymbol != null) {
+      return currencySymbol;
+    }
+    final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
+    final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
+    final currencyCode = currencyName ?? symbols.DEF_CURRENCY_CODE;
+    final format = NumberFormat(symbols.CURRENCY_PATTERN);
+    return format.simpleCurrencySymbol(currencyCode);
+  }
+
+  /// Determines whether the currency symbol is a prefix or suffix
+  /// for the given locale.
+  static CurrencySymbolPosition symbolPosition({String? locale}) {
+    final currentLocale = _verifiedLocale(locale, NumberFormat.localeExists)!;
+    final symbols = numberFormatSymbols[currentLocale] as NumberSymbols;
+    final pattern = symbols.CURRENCY_PATTERN;
+    // In ICU patterns, \u00A4 is the currency placeholder.
+    // If it appears before the first digit placeholder, it's a prefix.
+    final currencyIndex = pattern.indexOf('\u00A4');
+    final digitIndex = pattern.indexOf(RegExp('[0#]'));
+    if (currencyIndex < 0) {
+      return CurrencySymbolPosition.prefix;
+    }
+    return currencyIndex < digitIndex
+        ? CurrencySymbolPosition.prefix
+        : CurrencySymbolPosition.suffix;
+  }
 
   FormatResult formatValue(TextEditingValue textEditingValue) {
     var result = textEditingValue;

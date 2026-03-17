@@ -19,8 +19,6 @@ Drop a `NumberEditingTextController` into any `TextField`. The user sees formatt
 - Allows custom separators for grouping and decimal characters
 - Lets you change locale, currency, separators, and precision at runtime
 
-![number_editing_controller demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/screenshot.gif)
-
 ## Installation
 
 ```shell
@@ -56,6 +54,8 @@ final amount = controller.number; // e.g. 1234.56
 
 Formats whole numbers with grouping separators.
 
+![Integer formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/integer.gif)
+
 ```dart
 final controller = NumberEditingTextController.integer(locale: 'en');
 // User types "1000000" -> displays "1,000,000"
@@ -64,6 +64,8 @@ final controller = NumberEditingTextController.integer(locale: 'en');
 ### Decimal
 
 Formats numbers with a decimal part. Control minimum and maximum fraction digits.
+
+![Decimal formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/decimal.gif)
 
 ```dart
 final controller = NumberEditingTextController.decimal(
@@ -77,6 +79,8 @@ final controller = NumberEditingTextController.decimal(
 ### Currency
 
 Formats monetary amounts with a currency symbol placed according to locale rules.
+
+![Currency formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/currency.gif)
 
 ```dart
 final controller = NumberEditingTextController.currency(
@@ -108,6 +112,14 @@ Available on `CurrencyEditingController` and `NumberEditingTextController.curren
 | `currencyName` | `String?` | From locale | ISO 4217 currency code (e.g. `'USD'`, `'EUR'`, `'JPY'`). |
 | `currencySymbol` | `String?` | From currency code | Custom currency symbol (e.g. `'$'`, `'€'`, `'₺'`). |
 | `decimalSeparator` | `String?` | From locale | Symbol used to separate the decimal part. |
+| `showCurrencySymbol` | `bool` | `true` | Whether to include the currency symbol in the formatted text. Set to `false` when displaying the symbol outside the text field. |
+
+`CurrencyEditingController` also exposes these read-only properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `resolvedCurrencySymbol` | `String` | The actual symbol used for formatting, resolved from `currencySymbol` or `currencyName` + `locale`. |
+| `currencySymbolPosition` | `CurrencySymbolPosition` | Whether the symbol is a `.prefix` or `.suffix` in the current locale. |
 
 ### Decimal parameters
 
@@ -160,12 +172,41 @@ final decimal = DecimalEditingController(
 decimal.maximumFractionDigits = 2; // Only available on DecimalEditingController
 ```
 
+### Displaying the currency symbol outside the text field
+
+Use `showCurrencySymbol: false` to hide the symbol from the formatted text, then display it as a prefix or suffix decoration on the `TextField`. The `resolvedCurrencySymbol` and `currencySymbolPosition` properties tell you what to display and where.
+
+![Currency prefix/suffix demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/currency-prefix.gif)
+
+```dart
+final controller = CurrencyEditingController(
+  currencyName: 'USD',
+  locale: 'en',
+  showCurrencySymbol: false,
+);
+
+TextField(
+  controller: controller,
+  decoration: InputDecoration(
+    prefixText: controller.currencySymbolPosition == CurrencySymbolPosition.prefix
+        ? controller.resolvedCurrencySymbol
+        : null,
+    suffixText: controller.currencySymbolPosition == CurrencySymbolPosition.suffix
+        ? controller.resolvedCurrencySymbol
+        : null,
+  ),
+)
+// User types "1234" -> field shows "$" as prefix + "1,234" as text
+```
+
+This is useful when you want the symbol to remain fixed and not shift as the user types, or when you need custom styling for the symbol.
+
 ## Class hierarchy
 
 | Class | Description |
 |-------|-------------|
 | `NumberEditingTextController` | Interface. Use the factory constructors or program against this type. |
-| `CurrencyEditingController` | Formats currency amounts. Mutable: `currencyName`, `currencySymbol`, `decimalSeparator`. |
+| `CurrencyEditingController` | Formats currency amounts. Mutable: `currencyName`, `currencySymbol`, `decimalSeparator`, `showCurrencySymbol`. Read-only: `resolvedCurrencySymbol`, `currencySymbolPosition`. |
 | `DecimalEditingController` | Formats decimal numbers. Mutable: `minimalFractionDigits`, `maximumFractionDigits`, `decimalSeparator`. |
 | `IntegerEditingController` | Formats integers. No type-specific options beyond the shared ones. |
 
@@ -225,4 +266,4 @@ void dispose() {
 
 ## Example app
 
-A working example app with currency picker, locale switcher, and negative toggle is available in the [example](https://github.com/nerdy-pro/flutter_number_editing_controller/tree/main/example) directory.
+A working example app is available in the [example](https://github.com/nerdy-pro/flutter_number_editing_controller/tree/main/example) directory. It demonstrates currency picker, locale switcher, negative toggle, and external currency symbol placement with prefix/suffix decoration.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:number_editing_controller_example/variants/currency_input.dart';
 import 'package:number_editing_controller_example/variants/decimal_input.dart';
+import 'package:number_editing_controller_example/variants/external_symbol_input.dart';
 import 'package:number_editing_controller_example/variants/integer_input.dart';
 
 void main() {
@@ -29,7 +30,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -39,6 +40,7 @@ class HomePage extends StatelessWidget {
               Tab(text: 'Currency'),
               Tab(text: 'Integer'),
               Tab(text: 'Decimal'),
+              Tab(text: 'Prefix/Suffix'),
             ],
           ),
         ),
@@ -47,6 +49,7 @@ class HomePage extends StatelessWidget {
             CurrencyInput(),
             IntegerInput(),
             DecimalInput(),
+            ExternalSymbolInput(),
           ],
         ),
       ),

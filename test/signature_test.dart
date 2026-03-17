@@ -485,6 +485,230 @@ void main() {
       });
     });
 
+    group('CurrencyEditingController showCurrencySymbol', () {
+      test('hides symbol for leading symbol locale', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          showCurrencySymbol: false,
+          value: 1234.56,
+        );
+        expect(controller.text, '1,234.56');
+        expect(controller.number, 1234.56);
+      });
+
+      test('hides symbol and separator for trailing symbol locale', () {
+        final controller = CurrencyEditingController(
+          locale: 'de',
+          currencyName: 'EUR',
+          showCurrencySymbol: false,
+          value: 1234.56,
+        );
+        expect(controller.text, '1.234,56');
+        expect(controller.number, 1234.56);
+      });
+
+      test('toggling showCurrencySymbol reformats', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 100,
+        );
+        expect(controller.text, '\$100');
+        controller.showCurrencySymbol = false;
+        expect(controller.text, '100');
+        expect(controller.number, 100);
+        controller.showCurrencySymbol = true;
+        expect(controller.text, '\$100');
+        expect(controller.number, 100);
+      });
+
+      test('setting same value does not notify', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 10,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.showCurrencySymbol = true;
+        expect(callCount, 0);
+      });
+
+      test('typing with hidden symbol formats without symbol', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          showCurrencySymbol: false,
+        );
+        controller.value = const TextEditingValue(
+          text: '5000',
+          selection: TextSelection.collapsed(offset: 4),
+        );
+        expect(controller.text, '5,000');
+        expect(controller.number, 5000);
+      });
+
+      test('hidden symbol with negative number', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          showCurrencySymbol: false,
+          value: -42,
+        );
+        expect(controller.text, '-42');
+        expect(controller.number, -42);
+      });
+
+      test('hidden symbol with trailing locale negative', () {
+        final controller = CurrencyEditingController(
+          locale: 'ru',
+          currencyName: 'RUB',
+          showCurrencySymbol: false,
+          value: -500,
+        );
+        expect(controller.text, '-500');
+        expect(controller.number, -500);
+      });
+
+      test('default is true', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(controller.showCurrencySymbol, isTrue);
+      });
+
+      test('getter returns current value', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(controller.showCurrencySymbol, isTrue);
+        controller.showCurrencySymbol = false;
+        expect(controller.showCurrencySymbol, isFalse);
+      });
+
+      test('with null value keeps null', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          showCurrencySymbol: false,
+        );
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+    });
+
+    group('CurrencyEditingController currencySymbolPosition', () {
+      test('USD in en locale is prefix', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.prefix,
+        );
+      });
+
+      test('EUR in de locale is suffix', () {
+        final controller = CurrencyEditingController(
+          locale: 'de',
+          currencyName: 'EUR',
+        );
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.suffix,
+        );
+      });
+
+      test('RUB in ru locale is suffix', () {
+        final controller = CurrencyEditingController(
+          locale: 'ru',
+          currencyName: 'RUB',
+        );
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.suffix,
+        );
+      });
+
+      test('JPY in ja locale is prefix', () {
+        final controller = CurrencyEditingController(
+          locale: 'ja',
+          currencyName: 'JPY',
+        );
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.prefix,
+        );
+      });
+
+      test('position updates when locale changes', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'EUR',
+        );
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.prefix,
+        );
+        controller.locale = 'de';
+        expect(
+          controller.currencySymbolPosition,
+          CurrencySymbolPosition.suffix,
+        );
+      });
+    });
+
+    group('CurrencyEditingController resolvedCurrencySymbol', () {
+      test('returns resolved symbol when none specified', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(controller.resolvedCurrencySymbol, '\$');
+      });
+
+      test('returns custom symbol when specified', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          currencySymbol: '£',
+        );
+        expect(controller.resolvedCurrencySymbol, '£');
+      });
+
+      test('updates when currencyName changes', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(controller.resolvedCurrencySymbol, '\$');
+        controller.currencyName = 'EUR';
+        expect(controller.resolvedCurrencySymbol, '€');
+      });
+
+      test('updates when currencySymbol changes', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        expect(controller.resolvedCurrencySymbol, '\$');
+        controller.currencySymbol = '₺';
+        expect(controller.resolvedCurrencySymbol, '₺');
+      });
+
+      test('JPY resolves to yen symbol', () {
+        final controller = CurrencyEditingController(
+          locale: 'ja',
+          currencyName: 'JPY',
+        );
+        expect(controller.resolvedCurrencySymbol, '¥');
+      });
+    });
+
     group('mutable DecimalEditingController options', () {
       test('changing minimalFractionDigits reformats', () {
         final controller = DecimalEditingController(
