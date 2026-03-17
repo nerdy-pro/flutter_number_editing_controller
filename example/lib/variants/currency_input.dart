@@ -11,7 +11,7 @@ class CurrencyInput extends StatefulWidget {
 class _CurrencyInputState extends State<CurrencyInput> {
   final _controller = NumberEditingTextController.currency(
     currencyName: 'JPY',
-    allowNegative: false,
+    allowNegative: true,
   );
 
   @override

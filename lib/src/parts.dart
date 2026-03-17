@@ -53,7 +53,18 @@ class StaticPart extends NumberFormatPart {
     while (i < content.length && (position + i) <= v.text.length) {
       if ((position + i) == v.text.length ||
           content[i] != v.text[position + i]) {
-        v = v.replaced(TextRange.collapsed(position + i), content[i]);
+        // Check if the expected character exists right after (user inserted
+        // a character before the static content). If so, remove the inserted
+        // character instead of inserting the expected one.
+        if ((position + i + 1) < v.text.length &&
+            content[i] == v.text[position + i + 1]) {
+          v = v.replaced(
+            TextRange(start: position + i, end: position + i + 1),
+            '',
+          );
+        } else {
+          v = v.replaced(TextRange.collapsed(position + i), content[i]);
+        }
       }
       i++;
     }
@@ -103,7 +114,7 @@ class RealPart extends NumberFormatPart {
       final nextChar =
           v.text.length == position + i + 1 ? null : v.text[position + i + 1];
       if (g is WithGrouping && char == g.groupingSymbol) {
-        if (nextChar == null || !nextChar.isDigit) {
+        if (i == 0 || nextChar == null || !nextChar.isDigit) {
           finished = true;
           continue;
         }
@@ -139,11 +150,14 @@ class RealPart extends NumberFormatPart {
       number = numberText == '-' ? 0 : num.parse(numberText);
     }
     if (i != 0 && g is WithGrouping) {
-      final realPartLength = i;
-      for (var j = 0; j < realPartLength; j++) {
+      final hasMinusSign =
+          v.text[position] == '-' && allowNegative;
+      final digitLength = hasMinusSign ? i - 1 : i;
+      final digitStart = hasMinusSign ? 1 : 0;
+      for (var j = 0; j < digitLength; j++) {
         if (j != 0 && j % g.groupSize == 0) {
           v = v.replaced(
-            TextRange.collapsed(position + realPartLength - j),
+            TextRange.collapsed(position + digitStart + digitLength - j),
             g.groupingSymbol,
           );
           i++;

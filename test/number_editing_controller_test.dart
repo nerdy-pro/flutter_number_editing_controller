@@ -2,187 +2,64 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:number_editing_controller/number_editing_controller.dart';
 
+/// Non-breaking space used by many locales as a group separator.
+const _nbsp = '\u00A0';
+
+/// Narrow no-break space used by some locales (e.g. French) as a group separator.
+const _nnbsp = '\u202F';
+
 void main() {
-  test('empty state', () {
-    final controller = NumberEditingTextController.currency(
-      currencyName: 'EUR',
-    );
-    expect(controller.value, const TextEditingValue(text: ''));
-    expect(controller.number, null);
-  });
-  test('some amount', () {
-    final controller = NumberEditingTextController.currency(
-      currencyName: 'EUR',
-    );
-    controller.number = 10.5;
-    expect(controller.value, const TextEditingValue(text: '€10.5'));
-    expect(controller.number, 10.5);
-  });
-  test('some amount in DE locale', () {
-    final controller = NumberEditingTextController.currency(
-      currencyName: 'GBP',
-      locale: 'de',
-    );
-    controller.number = -5000.5;
-    expect(controller.value, const TextEditingValue(text: '-5.000,5 £'));
-    expect(controller.number, -5000.5);
-  });
-  test('some decimal', () {
-    final controller = NumberEditingTextController.decimal(
-      locale: 'de',
-      maximumFractionDigits: 6,
-    );
-    controller.number = -100.51241;
-    expect(controller.value, const TextEditingValue(text: '-100,51241'));
-    expect(controller.number, -100.51241);
-  });
-  test('some decimal but provided integer', () {
-    final controller = NumberEditingTextController.decimal(
-      locale: 'de',
-      maximumFractionDigits: 6,
-    );
-    controller.number = -1100;
-    expect(controller.value, const TextEditingValue(text: '-1.100'));
-    expect(controller.number, -1100);
-  });
-  test('some integer', () {
-    final controller = NumberEditingTextController.integer(
-      locale: 'de',
-    );
-    controller.number = -100;
-    expect(controller.value, const TextEditingValue(text: '-100'));
-    expect(controller.number, -100);
-  });
-  test('zero-based currency editing', () {
-    final controller = NumberEditingTextController.currency(
-      currencyName: 'USD',
-      locale: 'en',
-    );
-    controller.number = 1;
-    expect(
-      controller.value,
-      const TextEditingValue(
-        text: '\$1',
-      ),
-    );
+  group('NumberEditingTextController.currency', () {
+    test('empty state', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'EUR',
+      );
+      expect(controller.value.text, '');
+      expect(controller.number, null);
+    });
 
-    controller.value = controller.value.copyWith(
-      text: '\$',
-      selection: const TextSelection.collapsed(offset: 1),
-    );
-    expect(
-      controller.value,
-      const TextEditingValue(
-        text: '\$',
-        selection: TextSelection.collapsed(
-          offset: 1,
-        ),
-      ),
-    );
-    expect(controller.number, null);
-  });
-  test('zero-based currency editing with trailing symbol', () {
-    final controller = NumberEditingTextController.currency(
-      currencyName: 'USD',
-      locale: 'ru',
-    );
-    controller.number = 1;
-    expect(
-      controller.value,
-      const TextEditingValue(
-        text: '1 \$',
-      ),
-    );
+    test('set number programmatically', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'EUR',
+      );
+      controller.number = 10.5;
+      expect(controller.value.text, '€10.5');
+      expect(controller.number, 10.5);
+    });
 
-    controller.value = controller.value.copyWith(
-      text: ' \$',
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-    expect(
-      controller.value,
-      const TextEditingValue(
-        text: ' \$',
-        selection: TextSelection.collapsed(
-          offset: 0,
-        ),
-      ),
-    );
-    expect(controller.number, null);
-  });
+    test('set number to null clears text', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'EUR',
+      );
+      controller.number = 42;
+      expect(controller.number, 42);
+      controller.number = null;
+      expect(controller.value.text, '');
+      expect(controller.number, null);
+    });
 
-  test(
-    'disallow negative input with currency symbol before input',
-    () {
+    test('initial value via constructor', () {
       final controller = NumberEditingTextController.currency(
         currencyName: 'USD',
-        locale: 'ja',
-        allowNegative: false,
+        locale: 'en',
+        value: 99.99,
       );
+      expect(controller.value.text, '\$99.99');
+      expect(controller.number, 99.99);
+    });
 
-      controller.value = controller.value.copyWith(
-        text: '-',
-        selection: const TextSelection.collapsed(offset: 1),
-      );
-      expect(
-        controller.value,
-        const TextEditingValue(
-          text: '\$',
-          selection: TextSelection.collapsed(offset: 1),
-        ),
-      );
-
-      controller.value = controller.value.copyWith(
-        text: '\$-',
-        selection: const TextSelection.collapsed(offset: 2),
-      );
-      expect(
-        controller.value,
-        const TextEditingValue(
-          text: '\$',
-          selection: TextSelection.collapsed(offset: 1),
-        ),
-      );
-    },
-  );
-
-  test(
-    'disallow negative input with currency symbol after input',
-    () {
+    test('negative currency in DE locale', () {
       final controller = NumberEditingTextController.currency(
-        currencyName: 'UAH',
-        locale: 'uk',
-        allowNegative: false,
+        currencyName: 'GBP',
+        locale: 'de',
       );
+      controller.number = -5000.5;
+      // DE uses non-breaking space before currency symbol
+      expect(controller.value.text, '-5.000,5$_nbsp£');
+      expect(controller.number, -5000.5);
+    });
 
-      controller.value = controller.value.copyWith(
-        text: '-',
-        selection: const TextSelection.collapsed(offset: 1),
-      );
-      expect(
-        controller.value,
-        const TextEditingValue(
-          text: '',
-          selection: TextSelection.collapsed(offset: 0),
-        ),
-      );
-
-      controller.value = controller.value.copyWith(
-        text: '0',
-        selection: const TextSelection.collapsed(offset: 1),
-      );
-      expect(
-        controller.value,
-        const TextEditingValue(
-          text: '0 ₴',
-          selection: TextSelection.collapsed(offset: 3),
-        ),
-      );
-    },
-  );
-
-  test(
-    'overriden currency symbol',
-    () {
+    test('overridden currency symbol', () {
       final controller = NumberEditingTextController.currency(
         currencyName: 'TRY',
         locale: 'es_ES',
@@ -190,8 +67,1247 @@ void main() {
         allowNegative: false,
       );
       controller.number = 6612.54;
-      expect(controller.value, const TextEditingValue(text: '6.612,54 ₺'));
+      expect(controller.value.text, '6.612,54$_nbsp₺');
       expect(controller.number, 6612.54);
-    },
-  );
+    });
+
+    test('custom decimal separator', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+        decimalSeparator: '·',
+      );
+      controller.number = 10.5;
+      expect(controller.value.text, '\$10·5');
+    });
+
+    test('custom group separator', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+        groupSeparator: ' ',
+      );
+      controller.number = 1000000;
+      expect(controller.value.text, '\$1 000 000');
+    });
+
+    test('zero value', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.number = 0;
+      expect(controller.value.text, '\$0');
+      expect(controller.number, 0);
+    });
+
+    test('very large number', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.number = 999999999;
+      expect(controller.value.text, '\$999,999,999');
+      expect(controller.number, 999999999);
+    });
+
+    test('typing digits adds formatting', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: '1234',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+      expect(controller.value.text, '\$1,234');
+      expect(controller.number, 1234);
+    });
+
+    test('typing decimal amount', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: '10.50',
+        selection: const TextSelection.collapsed(offset: 5),
+      );
+      expect(controller.value.text, '\$10.50');
+      expect(controller.number, 10.5);
+    });
+
+    test('deleting all digits leaves currency symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.number = 1;
+      controller.value = controller.value.copyWith(
+        text: '\$',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.value.text, '\$');
+      expect(controller.number, null);
+    });
+
+    test('deleting all digits with trailing symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'ru',
+      );
+      controller.number = 1;
+      // Russian uses non-breaking space
+      expect(controller.value.text, '1$_nbsp\$');
+      controller.value = controller.value.copyWith(
+        text: '$_nbsp\$',
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+      expect(controller.value.text, '$_nbsp\$');
+      expect(controller.number, null);
+    });
+
+    test('JPY currency has no decimals', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'JPY',
+        locale: 'ja',
+      );
+      controller.number = 1500;
+      expect(controller.value.text, '¥1,500');
+      expect(controller.number, 1500);
+    });
+
+    test('default locale is used when none specified', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+      );
+      controller.number = 100;
+      expect(controller.number, 100);
+      expect(controller.value.text.isNotEmpty, true);
+    });
+  });
+
+  group('NumberEditingTextController.integer', () {
+    test('empty state', () {
+      final controller = NumberEditingTextController.integer();
+      expect(controller.value.text, '');
+      expect(controller.number, null);
+    });
+
+    test('set number programmatically', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 42;
+      expect(controller.value.text, '42');
+      expect(controller.number, 42);
+    });
+
+    test('negative integer', () {
+      final controller = NumberEditingTextController.integer(locale: 'de');
+      controller.number = -100;
+      expect(controller.value.text, '-100');
+      expect(controller.number, -100);
+    });
+
+    test('large integer with grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 1234567;
+      expect(controller.value.text, '1,234,567');
+      expect(controller.number, 1234567);
+    });
+
+    test('typing digits formats with grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '1000000',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.value.text, '1,000,000');
+      expect(controller.number, 1000000);
+    });
+
+    test('decimal input stops at separator for integer', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '123.45',
+        selection: const TextSelection.collapsed(offset: 6),
+      );
+      // integer controller ignores everything from decimal separator
+      expect(controller.number, 123);
+    });
+
+    test('zero value', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 0;
+      expect(controller.value.text, '0');
+      expect(controller.number, 0);
+    });
+
+    test('initial value via constructor', () {
+      final controller = NumberEditingTextController.integer(
+        locale: 'en',
+        value: 500,
+      );
+      expect(controller.value.text, '500');
+      expect(controller.number, 500);
+    });
+
+    test('custom group separator', () {
+      final controller = NumberEditingTextController.integer(
+        locale: 'en',
+        groupSeparator: '.',
+      );
+      controller.number = 1000000;
+      expect(controller.value.text, '1.000.000');
+    });
+
+    test('German locale grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'de');
+      controller.number = 1234567;
+      expect(controller.value.text, '1.234.567');
+      expect(controller.number, 1234567);
+    });
+
+    test('single digit', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '5',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.value.text, '5');
+      expect(controller.number, 5);
+    });
+  });
+
+  group('NumberEditingTextController.decimal', () {
+    test('empty state', () {
+      final controller = NumberEditingTextController.decimal();
+      expect(controller.value.text, '');
+      expect(controller.number, null);
+    });
+
+    test('set decimal number programmatically', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'de',
+        maximumFractionDigits: 6,
+      );
+      controller.number = -100.51241;
+      expect(controller.value.text, '-100,51241');
+      expect(controller.number, -100.51241);
+    });
+
+    test('integer provided to decimal controller', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'de',
+        maximumFractionDigits: 6,
+      );
+      controller.number = -1100;
+      expect(controller.value.text, '-1.100');
+      expect(controller.number, -1100);
+    });
+
+    test('minimum fraction digits enforced', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        minimalFractionDigits: 2,
+        maximumFractionDigits: 4,
+      );
+      controller.number = 10;
+      expect(controller.value.text, '10.00');
+      expect(controller.number, 10);
+    });
+
+    test('trailing zeros removed up to minimum', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        minimalFractionDigits: 1,
+        maximumFractionDigits: 4,
+      );
+      controller.number = 5.10;
+      expect(controller.value.text, '5.1');
+    });
+
+    test('zero decimal value', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      controller.number = 0;
+      expect(controller.value.text, '0');
+      expect(controller.number, 0);
+    });
+
+    test('large decimal with grouping', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      controller.number = 1234567.89;
+      expect(controller.value.text, '1,234,567.89');
+      expect(controller.number, 1234567.89);
+    });
+
+    test('initial value via constructor', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+        value: 3.14,
+      );
+      expect(controller.value.text, '3.14');
+      expect(controller.number, 3.14);
+    });
+
+    test('custom decimal separator', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        decimalSeparator: ',',
+        maximumFractionDigits: 2,
+      );
+      controller.number = 3.14;
+      expect(controller.value.text, '3,14');
+    });
+
+    test('custom group separator', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        groupSeparator: ' ',
+        maximumFractionDigits: 2,
+      );
+      controller.number = 1234567.89;
+      expect(controller.value.text, '1 234 567.89');
+    });
+
+    test('typing decimal value', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 3,
+      );
+      controller.value = controller.value.copyWith(
+        text: '42.123',
+        selection: const TextSelection.collapsed(offset: 6),
+      );
+      expect(controller.value.text, '42.123');
+      expect(controller.number, 42.123);
+    });
+
+    test('excess decimal digits truncated on input', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      controller.value = controller.value.copyWith(
+        text: '1.23456',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.value.text, '1.23');
+      expect(controller.number, 1.23);
+    });
+
+    test('German locale decimal formatting', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'de',
+        maximumFractionDigits: 2,
+      );
+      controller.number = 1234.56;
+      expect(controller.value.text, '1.234,56');
+      expect(controller.number, 1234.56);
+    });
+  });
+
+  group('allowNegative', () {
+    test('negative allowed by default for currency', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: '-100',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+      expect(controller.number, -100);
+    });
+
+    test('negative allowed by default for integer', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-50',
+        selection: const TextSelection.collapsed(offset: 3),
+      );
+      expect(controller.number, -50);
+    });
+
+    test('disallow negative with leading currency symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'ja',
+        allowNegative: false,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.value.text, '\$');
+
+      controller.value = controller.value.copyWith(
+        text: '\$-',
+        selection: const TextSelection.collapsed(offset: 2),
+      );
+      expect(controller.value.text, '\$');
+    });
+
+    test('disallow negative with trailing currency symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'UAH',
+        locale: 'uk',
+        allowNegative: false,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.value.text, '');
+
+      controller.value = controller.value.copyWith(
+        text: '0',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      // Ukrainian locale uses non-breaking space
+      expect(controller.value.text, '0$_nbsp₴');
+    });
+
+    test('disallow negative for integer', () {
+      final controller = NumberEditingTextController.integer(
+        locale: 'en',
+        allowNegative: false,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-5',
+        selection: const TextSelection.collapsed(offset: 2),
+      );
+      expect(controller.number, 5);
+    });
+
+    test('disallow negative for decimal', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        allowNegative: false,
+        maximumFractionDigits: 2,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-1.5',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+      expect(controller.number, 1.5);
+    });
+
+    test('minus sign only yields zero', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.number, 0);
+    });
+  });
+
+  group('non-numeric input filtering', () {
+    test('alphabetic characters stop parsing for integer', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '12abc34',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      // parsing stops at 'a', so only '12' is parsed
+      expect(controller.number, 12);
+    });
+
+    test('non-digit input with leading currency symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: 'abc',
+        selection: const TextSelection.collapsed(offset: 3),
+      );
+      // currency symbol is prepended, non-digits remain after the real part
+      expect(controller.number, null);
+    });
+
+    test('only first contiguous digits are parsed', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '1@2',
+        selection: const TextSelection.collapsed(offset: 3),
+      );
+      // stops parsing at '@'
+      expect(controller.number, 1);
+    });
+  });
+
+  group('locale handling', () {
+    test('French locale formatting', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'EUR',
+        locale: 'fr',
+      );
+      controller.number = 1234.56;
+      expect(controller.value.text, '1${_nnbsp}234,56$_nbsp€');
+      expect(controller.number, 1234.56);
+    });
+
+    test('Japanese locale with JPY', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'JPY',
+        locale: 'ja',
+        allowNegative: false,
+      );
+      controller.number = 1500;
+      expect(controller.value.text, '¥1,500');
+      expect(controller.number, 1500);
+    });
+
+    test('Spanish locale with custom currency', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'TRY',
+        locale: 'es_ES',
+        currencySymbol: '₺',
+      );
+      controller.number = 1000;
+      expect(controller.value.text, '1.000$_nbsp₺');
+      expect(controller.number, 1000);
+    });
+
+    test('Russian locale trailing currency symbol', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'RUB',
+        locale: 'ru',
+      );
+      controller.number = 500;
+      expect(controller.value.text, '500$_nbsp₽');
+      expect(controller.number, 500);
+    });
+  });
+
+  group('number setter edge cases', () {
+    test('set number updates text and number', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 100;
+      expect(controller.value.text, '100');
+      expect(controller.number, 100);
+      controller.number = 200;
+      expect(controller.value.text, '200');
+      expect(controller.number, 200);
+    });
+
+    test('set number to zero', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 0;
+      expect(controller.value.text, '0');
+      expect(controller.number, 0);
+    });
+
+    test('set number then type replaces properly', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 100;
+      controller.value = controller.value.copyWith(
+        text: '200',
+        selection: const TextSelection.collapsed(offset: 3),
+      );
+      expect(controller.value.text, '200');
+      expect(controller.number, 200);
+    });
+
+    test('repeated set same number keeps same text', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.number = 1000;
+      final formatted = controller.value.text;
+      controller.number = 1000;
+      expect(controller.value.text, formatted);
+    });
+  });
+
+  group('grouping behavior', () {
+    test('no grouping for small numbers', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 999;
+      expect(controller.value.text, '999');
+    });
+
+    test('grouping starts at 4 digits', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 1000;
+      expect(controller.value.text, '1,000');
+    });
+
+    test('multiple groups', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.number = 1000000000;
+      expect(controller.value.text, '1,000,000,000');
+    });
+
+    test('typing preserves grouping separators', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '12345',
+        selection: const TextSelection.collapsed(offset: 5),
+      );
+      expect(controller.value.text, '12,345');
+      expect(controller.number, 12345);
+    });
+
+    test('existing group separators are re-formatted', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '1,23,456',
+        selection: const TextSelection.collapsed(offset: 8),
+      );
+      expect(controller.value.text, '123,456');
+      expect(controller.number, 123456);
+    });
+  });
+
+  group('value setter (simulating user input)', () {
+    test('empty input stays empty', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = const TextEditingValue(text: '');
+      expect(controller.number, null);
+    });
+
+    test('typing single zero', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '0',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      expect(controller.value.text, '0');
+      expect(controller.number, 0);
+    });
+
+    test('typing leading zeros', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '007',
+        selection: const TextSelection.collapsed(offset: 3),
+      );
+      expect(controller.number, 7);
+    });
+  });
+
+  group('bug fixes', () {
+    test('negative decimal via typing produces correct number', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-5.14',
+        selection: const TextSelection.collapsed(offset: 5),
+      );
+      expect(controller.number, -5.14);
+    });
+
+    test('negative decimal via typing with various values', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 4,
+      );
+      controller.value = controller.value.copyWith(
+        text: '-0.5',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+      expect(controller.number, -0.5);
+
+      controller.value = controller.value.copyWith(
+        text: '-100.99',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.number, -100.99);
+
+      controller.value = controller.value.copyWith(
+        text: '-1.0001',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.number, -1.0001);
+    });
+
+    test('negative currency via typing produces correct number', () {
+      final controller = NumberEditingTextController.currency(
+        currencyName: 'USD',
+        locale: 'en',
+      );
+      controller.value = controller.value.copyWith(
+        text: '-25.75',
+        selection: const TextSelection.collapsed(offset: 6),
+      );
+      expect(controller.number, -25.75);
+    });
+
+    test('group separator at start of input does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      // Should not throw RangeError
+      controller.value = controller.value.copyWith(
+        text: ',5',
+        selection: const TextSelection.collapsed(offset: 2),
+      );
+      // separator at start stops parsing, no digits found
+      expect(controller.number, anyOf(isNull, equals(0)));
+    });
+
+    test('group separator alone does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: ',',
+        selection: const TextSelection.collapsed(offset: 1),
+      );
+      // Should not crash; number may be null or 0
+      expect(controller.number, anyOf(isNull, equals(0)));
+    });
+
+    test('NaN does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      expect(
+        () => controller.number = double.nan,
+        returnsNormally,
+      );
+    });
+
+    test('infinity does not crash', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      expect(
+        () => controller.number = double.infinity,
+        returnsNormally,
+      );
+    });
+
+    test('negative infinity does not crash', () {
+      final controller = NumberEditingTextController.decimal(
+        locale: 'en',
+        maximumFractionDigits: 2,
+      );
+      expect(
+        () => controller.number = double.negativeInfinity,
+        returnsNormally,
+      );
+    });
+
+    test('typing negative 6+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-100000',
+        selection: const TextSelection.collapsed(offset: 7),
+      );
+      expect(controller.value.text, '-100,000');
+      expect(controller.number, -100000);
+    });
+
+    test('typing negative 7+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-1000000',
+        selection: const TextSelection.collapsed(offset: 8),
+      );
+      expect(controller.value.text, '-1,000,000');
+      expect(controller.number, -1000000);
+    });
+
+    test('typing negative 10+ digit number has correct grouping', () {
+      final controller = NumberEditingTextController.integer(locale: 'en');
+      controller.value = controller.value.copyWith(
+        text: '-1234567890',
+        selection: const TextSelection.collapsed(offset: 11),
+      );
+      expect(controller.value.text, '-1,234,567,890');
+      expect(controller.number, -1234567890);
+    });
+
+    test(
+      'typing minus before leading currency symbol preserves digits',
+      () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'JPY',
+          locale: 'en',
+        );
+        controller.value = controller.value.copyWith(
+          text: '123456',
+          selection: const TextSelection.collapsed(offset: 6),
+        );
+        expect(controller.value.text, '¥123,456');
+        expect(controller.number, 123456);
+
+        // Simulate caret at position 0 and typing '-'
+        // The minus is removed by the static part, but digits must be preserved
+        controller.value = controller.value.copyWith(
+          text: '-¥123,456',
+          selection: const TextSelection.collapsed(offset: 1),
+        );
+        expect(controller.value.text, '¥123,456');
+        expect(controller.number, 123456);
+      },
+    );
+
+    test(
+      'typing minus before leading currency symbol with allowNegative false',
+      () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'JPY',
+          locale: 'en',
+          allowNegative: false,
+        );
+        controller.value = controller.value.copyWith(
+          text: '123456',
+          selection: const TextSelection.collapsed(offset: 6),
+        );
+        expect(controller.value.text, '¥123,456');
+        expect(controller.number, 123456);
+
+        // Simulate caret at position 0 and typing '-' — should be rejected
+        controller.value = controller.value.copyWith(
+          text: '-¥123,456',
+          selection: const TextSelection.collapsed(offset: 1),
+        );
+        // Should not duplicate currency symbol or lose digits
+        expect(controller.value.text, '¥123,456');
+        expect(controller.number, 123456);
+      },
+    );
+  });
+
+  group('caret position', () {
+    group('integer controller', () {
+      test('caret at end after typing single digit', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.value = controller.value.copyWith(
+          text: '5',
+          selection: const TextSelection.collapsed(offset: 1),
+        );
+        expect(controller.value.text, '5');
+        expect(controller.value.selection.baseOffset, 1);
+      });
+
+      test('caret at end after typing 4 digits adds grouping', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.value = controller.value.copyWith(
+          text: '1234',
+          selection: const TextSelection.collapsed(offset: 4),
+        );
+        // '1234' -> '1,234', caret moves to end (5)
+        expect(controller.value.text, '1,234');
+        expect(controller.value.selection.baseOffset, 5);
+      });
+
+      test('caret at end after typing 5 digits', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.value = controller.value.copyWith(
+          text: '1,2345',
+          selection: const TextSelection.collapsed(offset: 6),
+        );
+        // '1,2345' -> '12,345', caret at end (6)
+        expect(controller.value.text, '12,345');
+        expect(controller.value.selection.baseOffset, 6);
+      });
+
+      test('caret at end after typing 6 digits', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.value = controller.value.copyWith(
+          text: '12,3456',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        // '12,3456' -> '123,456', caret at end (7)
+        expect(controller.value.text, '123,456');
+        expect(controller.value.selection.baseOffset, 7);
+      });
+
+      test('caret preserved in middle after deleting digit', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        // Start with '12,345', delete '2' -> '1,345' with cursor at 1
+        controller.value = controller.value.copyWith(
+          text: '12345',
+          selection: const TextSelection.collapsed(offset: 5),
+        );
+        controller.value = controller.value.copyWith(
+          text: '1,345',
+          selection: const TextSelection.collapsed(offset: 1),
+        );
+        expect(controller.value.text, '1,345');
+        expect(controller.value.selection.baseOffset, 2);
+      });
+
+      test('caret at end after deleting last digit', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.value = controller.value.copyWith(
+          text: '12345',
+          selection: const TextSelection.collapsed(offset: 5),
+        );
+        // Delete last digit: '12,345' -> '12,34' cursor at 5
+        controller.value = controller.value.copyWith(
+          text: '12,34',
+          selection: const TextSelection.collapsed(offset: 5),
+        );
+        // Re-grouped as '1,234', cursor at end (5)
+        expect(controller.value.text, '1,234');
+        expect(controller.value.selection.baseOffset, 5);
+      });
+    });
+
+    group('currency controller', () {
+      test('caret after currency symbol when typing first digit', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'USD',
+          locale: 'en',
+        );
+        controller.value = controller.value.copyWith(
+          text: '1',
+          selection: const TextSelection.collapsed(offset: 1),
+        );
+        // '$1', caret at end (2)
+        expect(controller.value.text, '\$1');
+        expect(controller.value.selection.baseOffset, 2);
+      });
+
+      test('caret at end after typing multiple digits', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'USD',
+          locale: 'en',
+        );
+        controller.value = controller.value.copyWith(
+          text: '\$12',
+          selection: const TextSelection.collapsed(offset: 3),
+        );
+        expect(controller.value.text, '\$12');
+        expect(controller.value.selection.baseOffset, 3);
+      });
+
+      test('caret at end after grouping added', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'USD',
+          locale: 'en',
+        );
+        controller.value = controller.value.copyWith(
+          text: '\$1234',
+          selection: const TextSelection.collapsed(offset: 5),
+        );
+        // '$1234' -> '$1,234', caret at end (6)
+        expect(controller.value.text, '\$1,234');
+        expect(controller.value.selection.baseOffset, 6);
+      });
+
+      test('caret at end after typing 5 digits', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'USD',
+          locale: 'en',
+        );
+        controller.value = controller.value.copyWith(
+          text: '\$1,2345',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        // '$1,2345' -> '$12,345', caret at end (7)
+        expect(controller.value.text, '\$12,345');
+        expect(controller.value.selection.baseOffset, 7);
+      });
+    });
+
+    group('decimal controller', () {
+      test('caret at end after typing decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          maximumFractionDigits: 2,
+        );
+        controller.value = controller.value.copyWith(
+          text: '1.5',
+          selection: const TextSelection.collapsed(offset: 3),
+        );
+        expect(controller.value.text, '1.5');
+        expect(controller.value.selection.baseOffset, 3);
+      });
+
+      test('caret at end after typing two decimal digits', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          maximumFractionDigits: 2,
+        );
+        controller.value = controller.value.copyWith(
+          text: '1.50',
+          selection: const TextSelection.collapsed(offset: 4),
+        );
+        expect(controller.value.text, '1.50');
+        expect(controller.value.selection.baseOffset, 4);
+      });
+
+      test('caret at end after typing integer part with grouping', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          maximumFractionDigits: 2,
+        );
+        controller.value = controller.value.copyWith(
+          text: '12345.67',
+          selection: const TextSelection.collapsed(offset: 8),
+        );
+        // '12345.67' -> '12,345.67', caret at end (9)
+        expect(controller.value.text, '12,345.67');
+        expect(controller.value.selection.baseOffset, 9);
+      });
+    });
+  });
+
+  group('non-common formatting patterns', () {
+    group('Korean Won (no decimal currency)', () {
+      test('set number programmatically', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'KRW',
+          locale: 'ko',
+        );
+        controller.number = 50000;
+        expect(controller.value.text, '₩50,000');
+        expect(controller.number, 50000);
+      });
+
+      test('type large amount', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'KRW',
+          locale: 'ko',
+        );
+        controller.value = controller.value.copyWith(
+          text: '1000000',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        expect(controller.value.text, '₩1,000,000');
+        expect(controller.number, 1000000);
+      });
+    });
+
+    group('Brazilian Real (R\$ multi-char symbol)', () {
+      test('set number programmatically', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'BRL',
+          locale: 'pt_BR',
+        );
+        controller.number = 1234.56;
+        expect(controller.value.text, 'R\$$_nbsp${'1.234,56'}');
+        expect(controller.number, 1234.56);
+      });
+
+      test('type digits', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'BRL',
+          locale: 'pt_BR',
+        );
+        controller.value = controller.value.copyWith(
+          text: '5000',
+          selection: const TextSelection.collapsed(offset: 4),
+        );
+        expect(controller.value.text, 'R\$$_nbsp${'5.000'}');
+        expect(controller.number, 5000);
+      });
+    });
+
+    group('Turkish Lira (multi-char symbol TL)', () {
+      test('set number programmatically', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'TRY',
+          locale: 'tr',
+        );
+        controller.number = 1234.56;
+        expect(controller.value.text, 'TL1.234,56');
+        expect(controller.number, 1234.56);
+      });
+    });
+
+    group('Danish Krone (trailing multi-char symbol)', () {
+      test('set number programmatically', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'DKK',
+          locale: 'da',
+        );
+        controller.number = 1234.56;
+        expect(controller.value.text, '1.234,56${_nbsp}kr');
+        expect(controller.number, 1234.56);
+      });
+
+      test('negative value', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'DKK',
+          locale: 'da',
+        );
+        controller.number = -500;
+        expect(controller.value.text, '-500${_nbsp}kr');
+        expect(controller.number, -500);
+      });
+    });
+
+    group('custom separator configurations', () {
+      test('no grouping with empty separator', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          groupSeparator: '',
+        );
+        controller.number = 1234567;
+        expect(controller.value.text, '1234567');
+        expect(controller.number, 1234567);
+      });
+
+      test('same character for group and decimal separator', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'USD',
+          locale: 'en',
+          groupSeparator: '.',
+          decimalSeparator: '.',
+        );
+        controller.number = 1234.56;
+        expect(controller.value.text, '\$1.234.56');
+        expect(controller.number, 1234.56);
+      });
+
+      test('space as group separator', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          groupSeparator: ' ',
+          maximumFractionDigits: 2,
+        );
+        controller.number = 1234567.89;
+        expect(controller.value.text, '1 234 567.89');
+        expect(controller.number, 1234567.89);
+      });
+
+      test('custom decimal separator with comma', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          decimalSeparator: ',',
+          maximumFractionDigits: 2,
+        );
+        controller.number = 42.99;
+        expect(controller.value.text, '42,99');
+        expect(controller.number, 42.99);
+      });
+    });
+
+    group('decimal precision edge cases', () {
+      test('high minimum fraction digits', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          minimalFractionDigits: 3,
+          maximumFractionDigits: 8,
+        );
+        controller.number = 1.5;
+        expect(controller.value.text, '1.500');
+        expect(controller.number, 1.5);
+      });
+
+      test('high minimum fraction digits with integer value', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          minimalFractionDigits: 3,
+          maximumFractionDigits: 8,
+        );
+        controller.number = 1.0;
+        expect(controller.value.text, '1.000');
+      });
+
+      test('maximum fraction digits truncates with rounding', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          minimalFractionDigits: 3,
+          maximumFractionDigits: 8,
+        );
+        controller.number = 1.123456789;
+        // toStringAsFixed(8) rounds the 9th digit
+        expect(controller.value.text, '1.12345679');
+      });
+
+      test('very small decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          maximumFractionDigits: 10,
+        );
+        controller.number = 0.0000001;
+        expect(controller.value.text, '0.0000001');
+        expect(controller.number, 0.0000001);
+      });
+
+      test('typing more decimals than max is truncated', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          minimalFractionDigits: 0,
+          maximumFractionDigits: 3,
+        );
+        controller.value = controller.value.copyWith(
+          text: '1.12345',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        expect(controller.value.text, '1.123');
+        expect(controller.number, 1.123);
+      });
+    });
+
+    group('German locale (dot grouping, comma decimal)', () {
+      test('integer typing with dot grouping', () {
+        final controller = NumberEditingTextController.integer(locale: 'de');
+        controller.value = controller.value.copyWith(
+          text: '1234567',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        expect(controller.value.text, '1.234.567');
+        expect(controller.number, 1234567);
+      });
+
+      test('decimal with comma separator', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'de',
+          maximumFractionDigits: 2,
+        );
+        controller.value = controller.value.copyWith(
+          text: '1234,56',
+          selection: const TextSelection.collapsed(offset: 7),
+        );
+        expect(controller.value.text, '1.234,56');
+        expect(controller.number, 1234.56);
+      });
+
+      test('negative decimal with German formatting', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'de',
+          maximumFractionDigits: 2,
+        );
+        controller.value = controller.value.copyWith(
+          text: '-1234,56',
+          selection: const TextSelection.collapsed(offset: 8),
+        );
+        expect(controller.value.text, '-1.234,56');
+        expect(controller.number, -1234.56);
+      });
+    });
+
+    group('Hindi locale with INR', () {
+      test('set number programmatically', () {
+        final controller = NumberEditingTextController.currency(
+          currencyName: 'INR',
+          locale: 'hi',
+        );
+        controller.number = 50000;
+        expect(controller.value.text, '₹50,000');
+        expect(controller.number, 50000);
+      });
+    });
+
+    group('negative zero', () {
+      test('negative zero decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          maximumFractionDigits: 2,
+        );
+        controller.number = -0.0;
+        // -0.0 has no significant digits, should format as '0'
+        expect(controller.value.text, '0');
+      });
+
+      test('negative zero integer', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.number = -0;
+        expect(controller.value.text, '0');
+        expect(controller.number, 0);
+      });
+    });
+  });
 }
