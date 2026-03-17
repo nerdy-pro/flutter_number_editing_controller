@@ -2,4 +2,9 @@
 /// as you type with locale support.
 library;
 
-export 'src/text_controller.dart' show NumberEditingTextController;
+export 'src/text_controller.dart'
+    show
+        NumberEditingTextController,
+        CurrencyEditingController,
+        DecimalEditingController,
+        IntegerEditingController;
