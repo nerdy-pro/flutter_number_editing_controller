@@ -11,10 +11,30 @@ import 'package:number_editing_controller/src/parsed_number_format.dart';
 ///
 /// The formatted text is displayed in the [TextField], while the underlying
 /// numeric value can be accessed via the [number] property.
+///
+/// Formatting options such as [locale], [groupSeparator], and [allowNegative]
+/// can be changed at any time. Changing an option automatically reformats the
+/// current value.
 class NumberEditingTextController extends TextEditingController {
-  final ParsedNumberFormat _format;
+  ParsedNumberFormat _format;
 
   num? _number;
+
+  String? _locale;
+  String? _groupSeparator;
+  bool _allowNegative;
+
+  // Currency-specific fields.
+  String? _currencyName;
+  String? _currencySymbol;
+  String? _decimalSeparator;
+
+  // Decimal-specific fields.
+  int? _minimalFractionDigits;
+  int? _maximumFractionDigits;
+
+  // Tracks which constructor was used so we can rebuild the format.
+  final _FormatType _formatType;
 
   /// Creates a controller instance suitable for formatting input as a currency amount.
   ///
@@ -33,7 +53,16 @@ class NumberEditingTextController extends TextEditingController {
     String? decimalSeparator,
     String? groupSeparator,
     bool allowNegative = true,
-  }) : _format = ParsedNumberFormat.currency(
+  })  : _locale = locale,
+        _currencyName = currencyName,
+        _currencySymbol = currencySymbol,
+        _decimalSeparator = decimalSeparator,
+        _groupSeparator = groupSeparator,
+        _allowNegative = allowNegative,
+        _minimalFractionDigits = null,
+        _maximumFractionDigits = null,
+        _formatType = _FormatType.currency,
+        _format = ParsedNumberFormat.currency(
           locale: locale,
           currencyName: currencyName,
           currencySymbol: currencySymbol,
@@ -61,7 +90,16 @@ class NumberEditingTextController extends TextEditingController {
     String? decimalSeparator,
     String? groupSeparator,
     bool allowNegative = true,
-  }) : _format = ParsedNumberFormat.decimal(
+  })  : _locale = locale,
+        _minimalFractionDigits = minimalFractionDigits,
+        _maximumFractionDigits = maximumFractionDigits,
+        _decimalSeparator = decimalSeparator,
+        _groupSeparator = groupSeparator,
+        _allowNegative = allowNegative,
+        _currencyName = null,
+        _currencySymbol = null,
+        _formatType = _FormatType.decimal,
+        _format = ParsedNumberFormat.decimal(
           locale: locale,
           minimalFractionDigits: minimalFractionDigits,
           maximumFractionDigits: maximumFractionDigits,
@@ -83,12 +121,51 @@ class NumberEditingTextController extends TextEditingController {
     num? value,
     String? groupSeparator,
     bool allowNegative = true,
-  }) : _format = ParsedNumberFormat.integer(
+  })  : _locale = locale,
+        _groupSeparator = groupSeparator,
+        _allowNegative = allowNegative,
+        _currencyName = null,
+        _currencySymbol = null,
+        _decimalSeparator = null,
+        _minimalFractionDigits = null,
+        _maximumFractionDigits = null,
+        _formatType = _FormatType.integer,
+        _format = ParsedNumberFormat.integer(
           locale: locale,
           groupSeparator: groupSeparator,
           allowNegative: allowNegative,
         ) {
     number = value;
+  }
+
+  /// The locale used for number formatting.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get locale => _locale;
+  set locale(String? value) {
+    if (_locale == value) return;
+    _locale = value;
+    _rebuildFormat();
+  }
+
+  /// The symbol used to group digits (e.g. `,` in `1,000`).
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get groupSeparator => _groupSeparator;
+  set groupSeparator(String? value) {
+    if (_groupSeparator == value) return;
+    _groupSeparator = value;
+    _rebuildFormat();
+  }
+
+  /// Whether negative number input is allowed.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  bool get allowNegative => _allowNegative;
+  set allowNegative(bool value) {
+    if (_allowNegative == value) return;
+    _allowNegative = value;
+    _rebuildFormat();
   }
 
   /// The underlying numeric value extracted from the formatted text.
@@ -100,8 +177,11 @@ class NumberEditingTextController extends TextEditingController {
   ///
   /// Setting to `null` clears the text field.
   set number(num? number) {
-    _number = number;
-    final text = number == null ? '' : _format.formatString(number);
+    final effectiveNumber =
+        number != null && !_allowNegative && number < 0 ? -number : number;
+    _number = effectiveNumber;
+    final text =
+        effectiveNumber == null ? '' : _format.formatString(effectiveNumber);
     super.value = value.copyWith(
       text: text,
       selection: const TextSelection.collapsed(offset: -1),
@@ -115,4 +195,42 @@ class NumberEditingTextController extends TextEditingController {
     _number = result.number;
     super.value = result.value;
   }
+
+  void _rebuildFormat() {
+    _format = switch (_formatType) {
+      _FormatType.currency => ParsedNumberFormat.currency(
+          locale: _locale,
+          currencyName: _currencyName,
+          currencySymbol: _currencySymbol,
+          decimalSeparator: _decimalSeparator,
+          groupSeparator: _groupSeparator,
+          allowNegative: _allowNegative,
+        ),
+      _FormatType.decimal => ParsedNumberFormat.decimal(
+          locale: _locale,
+          minimalFractionDigits: _minimalFractionDigits,
+          maximumFractionDigits: _maximumFractionDigits,
+          decimalSeparator: _decimalSeparator,
+          groupSeparator: _groupSeparator,
+          allowNegative: _allowNegative,
+        ),
+      _FormatType.integer => ParsedNumberFormat.integer(
+          locale: _locale,
+          groupSeparator: _groupSeparator,
+          allowNegative: _allowNegative,
+        ),
+    };
+    _reformat();
+  }
+
+  void _reformat() {
+    if (_number != null) {
+      // Re-set via the number setter so the new format can alter the value
+      // (e.g. stripping the sign when allowNegative becomes false).
+      final currentNumber = _number!;
+      number = currentNumber;
+    }
+  }
 }
+
+enum _FormatType { currency, decimal, integer }

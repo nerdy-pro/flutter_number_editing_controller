@@ -136,6 +136,250 @@ void main() {
       });
     });
 
+    group('mutable locale', () {
+      test('changing locale reformats integer', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 1234567,
+        );
+        expect(controller.text, '1,234,567');
+        controller.locale = 'de';
+        expect(controller.text, '1.234.567');
+        expect(controller.number, 1234567);
+      });
+
+      test('changing locale reformats currency', () {
+        final controller = NumberEditingTextController.currency(
+          locale: 'en',
+          currencyName: 'EUR',
+          value: 1234.56,
+        );
+        expect(controller.text, '€1,234.56');
+        controller.locale = 'de';
+        expect(controller.text, '1.234,56\u00A0€');
+        expect(controller.number, 1234.56);
+      });
+
+      test('changing locale reformats decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          value: 1234.5,
+        );
+        expect(controller.text, '1,234.5');
+        controller.locale = 'de';
+        expect(controller.text, '1.234,5');
+        expect(controller.number, 1234.5);
+      });
+
+      test('setting same locale does not notify listeners', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 100,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.locale = 'en';
+        expect(callCount, 0);
+      });
+
+      test('changing locale with null value keeps null', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        expect(controller.number, isNull);
+        controller.locale = 'de';
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+
+      test('getter returns current locale', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        expect(controller.locale, 'en');
+        controller.locale = 'fr';
+        expect(controller.locale, 'fr');
+      });
+    });
+
+    group('mutable groupSeparator', () {
+      test('changing group separator reformats integer', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 1234567,
+        );
+        expect(controller.text, '1,234,567');
+        controller.groupSeparator = ' ';
+        expect(controller.text, '1 234 567');
+        expect(controller.number, 1234567);
+      });
+
+      test('changing group separator reformats currency', () {
+        final controller = NumberEditingTextController.currency(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 5000,
+        );
+        expect(controller.text, '\$5,000');
+        controller.groupSeparator = '.';
+        expect(controller.text, '\$5.000');
+        expect(controller.number, 5000);
+      });
+
+      test('changing group separator reformats decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          value: 12345.67,
+        );
+        expect(controller.text, '12,345.67');
+        controller.groupSeparator = ' ';
+        expect(controller.text, '12 345.67');
+        expect(controller.number, 12345.67);
+      });
+
+      test('setting same separator does not notify listeners', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          groupSeparator: ',',
+          value: 1000,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.groupSeparator = ',';
+        expect(callCount, 0);
+      });
+
+      test('getter returns current separator', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          groupSeparator: ',',
+        );
+        expect(controller.groupSeparator, ',');
+        controller.groupSeparator = '.';
+        expect(controller.groupSeparator, '.');
+      });
+
+      test('changing separator with null value keeps null', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.groupSeparator = '.';
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+    });
+
+    group('mutable allowNegative', () {
+      test('disabling allowNegative drops sign from negative integer', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: -500,
+        );
+        expect(controller.text, '-500');
+        expect(controller.number, -500);
+        controller.allowNegative = false;
+        expect(controller.text, '500');
+        expect(controller.number, 500);
+      });
+
+      test('disabling allowNegative drops sign from negative decimal', () {
+        final controller = NumberEditingTextController.decimal(
+          locale: 'en',
+          value: -3.14,
+        );
+        expect(controller.text, '-3.14');
+        controller.allowNegative = false;
+        expect(controller.text, '3.14');
+        expect(controller.number, 3.14);
+      });
+
+      test('disabling allowNegative drops sign from negative currency', () {
+        final controller = NumberEditingTextController.currency(
+          locale: 'en',
+          currencyName: 'USD',
+          value: -42,
+        );
+        expect(controller.text, '\$-42');
+        controller.allowNegative = false;
+        expect(controller.text, '\$42');
+        expect(controller.number, 42);
+      });
+
+      test('enabling allowNegative does not add sign to positive', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          allowNegative: false,
+          value: 100,
+        );
+        expect(controller.text, '100');
+        controller.allowNegative = true;
+        expect(controller.text, '100');
+        expect(controller.number, 100);
+      });
+
+      test('setting same value does not notify listeners', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 10,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.allowNegative = true;
+        expect(callCount, 0);
+      });
+
+      test('getter returns current value', () {
+        final controller = NumberEditingTextController.integer();
+        expect(controller.allowNegative, isTrue);
+        controller.allowNegative = false;
+        expect(controller.allowNegative, isFalse);
+      });
+
+      test('disabling with null value keeps null', () {
+        final controller = NumberEditingTextController.integer(locale: 'en');
+        controller.allowNegative = false;
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+    });
+
+    group('multiple mutations combined', () {
+      test('changing locale then separator', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 1000000,
+        );
+        expect(controller.text, '1,000,000');
+        controller.locale = 'de';
+        expect(controller.text, '1.000.000');
+        controller.groupSeparator = ' ';
+        expect(controller.text, '1 000 000');
+        expect(controller.number, 1000000);
+      });
+
+      test('changing separator then disabling negative', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: -5000,
+        );
+        expect(controller.text, '-5,000');
+        controller.groupSeparator = '.';
+        expect(controller.text, '-5.000');
+        controller.allowNegative = false;
+        expect(controller.text, '5.000');
+        expect(controller.number, 5000);
+      });
+
+      test('typing after mutation uses new format', () {
+        final controller = NumberEditingTextController.integer(
+          locale: 'en',
+          value: 100,
+        );
+        expect(controller.text, '100');
+        controller.groupSeparator = '.';
+        controller.value = const TextEditingValue(
+          text: '1000',
+          selection: TextSelection.collapsed(offset: 4),
+        );
+        expect(controller.text, '1.000');
+        expect(controller.number, 1000);
+      });
+    });
+
     group('constructor parameter defaults', () {
       test('currency defaults to allowNegative=true', () {
         final controller = NumberEditingTextController.currency(
