@@ -226,7 +226,7 @@ class ParsedNumberFormat {
       }
       if (part is DecimalPart) {
         final min = part.minLength;
-        final max = part.maxLength;
+        final max = part.maxLength.clamp(0, 20);
 
         final stringValue = value.toStringAsFixed(max).split('.').last;
         final hasSignificantDigits =

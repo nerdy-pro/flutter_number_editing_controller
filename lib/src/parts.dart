@@ -69,7 +69,7 @@ class StaticPart extends NumberFormatPart {
       i++;
     }
 
-    return PartFormatResult(v, i, 0);
+    return PartFormatResult(v, i, null);
   }
 
   @override
@@ -145,11 +145,11 @@ class RealPart extends NumberFormatPart {
     if (i == 0) {
       return PartFormatResult(v, 0, null);
     }
-    if (i != 0) {
-      final numberText = v.text.substring(position, position + i);
-      number = numberText == '-' ? 0 : num.parse(numberText);
-    }
-    if (i != 0 && g is WithGrouping) {
+
+    final numberText = v.text.substring(position, position + i);
+    number = numberText == '-' ? 0 : num.parse(numberText);
+
+    if (g is WithGrouping) {
       final hasMinusSign =
           v.text[position] == '-' && allowNegative;
       final digitLength = hasMinusSign ? i - 1 : i;
@@ -163,10 +163,6 @@ class RealPart extends NumberFormatPart {
           i++;
         }
       }
-    }
-    if (i == 0) {
-      v = v.replaced(TextRange.collapsed(position + i), '0');
-      i++;
     }
 
     return PartFormatResult(v, i, number);

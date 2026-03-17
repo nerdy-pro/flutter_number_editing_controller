@@ -182,6 +182,35 @@ decimal.maximumFractionDigits = 2; // Only available on DecimalEditingController
 | `de` | Integer | `1234567` | `1.234.567` |
 | `en` | Decimal (max 2) | `1234567.89` | `1,234,567.89` |
 
+## Known limitations
+
+### Number precision
+
+The controller uses Dart's `num` type (`int` and `double`).
+
+- **Flutter web**: JavaScript represents all numbers as 64-bit floats. Integers above `2^53 - 1` (9,007,199,254,740,991) lose precision silently. This affects both typed input and programmatic values.
+- **Floating-point rounding**: `double` provides ~15-17 significant digits. Values like `12345678901234.56` will lose the fractional part. Standard IEEE 754 rounding artifacts apply (e.g. `1.005.toStringAsFixed(2)` produces `"1.00"`).
+- **Native platforms**: 64-bit integers support up to `2^63 - 1` (~9.2 quintillion).
+
+### Grouping
+
+The library uses a uniform group size derived from the locale's ICU format pattern (typically groups of 3). **Variable-width grouping systems are not supported.** This affects the Indian/South Asian numbering system (lakh/crore), where groups alternate between 2 and 3 digits. For example, `12,34,56,789` would render as `123,456,789` instead.
+
+### Decimal fraction digits
+
+- Maximum of 20 fraction digits (Dart's `toStringAsFixed` limit). Values beyond 20 are clamped.
+- `minimalFractionDigits` must not exceed `maximumFractionDigits`. No runtime validation is performed; invalid combinations will cause errors.
+
+### Locale and formatting
+
+- **No RTL support**: Arabic, Hebrew, and other right-to-left locales are not handled. Characters are inserted left-to-right.
+- **Single-character decimal separator**: Multi-character decimal separators are not supported.
+- **No input length limit**: Extremely long inputs may degrade formatting performance.
+
+### Runtime option changes
+
+Changing formatting options (locale, currency, separators) at runtime reformats from the stored numeric value. Any partial typing state (e.g. a trailing decimal separator the user just entered) is discarded.
+
 ## Disposing the controller
 
 Like any `TextEditingController`, dispose of it when it is no longer needed:

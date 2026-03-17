@@ -159,7 +159,7 @@ mixin _NumberEditingMixin on TextEditingController
   @override
   set number(num? number) {
     final effectiveNumber =
-        number != null && !_allowNegative && number < 0 ? -number : number;
+        (number != null && !_allowNegative && number < 0) ? -number : number;
     _number = effectiveNumber;
     final text =
         effectiveNumber == null ? '' : _format.formatString(effectiveNumber);
