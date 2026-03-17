@@ -1,6 +1,6 @@
 name: number_editing_controller
 description: A TextEditingController that formats numbers, decimals, and currencies as you type with locale support.
-version: 2.0.0
+version: 2.1.0
 repository: https://github.com/nerdy-pro/flutter_number_editing_controller
 
 topics:
