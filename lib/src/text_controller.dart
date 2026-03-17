@@ -122,7 +122,9 @@ mixin _NumberEditingMixin on TextEditingController
 
   @override
   set locale(String? value) {
-    if (_locale == value) return;
+    if (_locale == value) {
+      return;
+    }
     _locale = value;
     _rebuildFormat();
   }
@@ -132,7 +134,9 @@ mixin _NumberEditingMixin on TextEditingController
 
   @override
   set groupSeparator(String? value) {
-    if (_groupSeparator == value) return;
+    if (_groupSeparator == value) {
+      return;
+    }
     _groupSeparator = value;
     _rebuildFormat();
   }
@@ -142,7 +146,9 @@ mixin _NumberEditingMixin on TextEditingController
 
   @override
   set allowNegative(bool value) {
-    if (_allowNegative == value) return;
+    if (_allowNegative == value) {
+      return;
+    }
     _allowNegative = value;
     _rebuildFormat();
   }
@@ -211,6 +217,42 @@ class CurrencyEditingController extends TextEditingController
     number = value;
   }
 
+  /// The 3-letter ISO 4217 currency code (e.g. USD, EUR, TRY).
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get currencyName => _currencyName;
+  set currencyName(String? value) {
+    if (_currencyName == value) {
+      return;
+    }
+    _currencyName = value;
+    _rebuildFormat();
+  }
+
+  /// The currency symbol (e.g. $, €, ₺).
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get currencySymbol => _currencySymbol;
+  set currencySymbol(String? value) {
+    if (_currencySymbol == value) {
+      return;
+    }
+    _currencySymbol = value;
+    _rebuildFormat();
+  }
+
+  /// The symbol used to separate the decimal part.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get decimalSeparator => _decimalSeparator;
+  set decimalSeparator(String? value) {
+    if (_decimalSeparator == value) {
+      return;
+    }
+    _decimalSeparator = value;
+    _rebuildFormat();
+  }
+
   @override
   ParsedNumberFormat _buildFormat() => ParsedNumberFormat.currency(
         locale: _locale,
@@ -252,6 +294,42 @@ class DecimalEditingController extends TextEditingController
     _allowNegative = allowNegative;
     _format = _buildFormat();
     number = value;
+  }
+
+  /// The minimum number of fraction digits to display.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  int? get minimalFractionDigits => _minimalFractionDigits;
+  set minimalFractionDigits(int? value) {
+    if (_minimalFractionDigits == value) {
+      return;
+    }
+    _minimalFractionDigits = value;
+    _rebuildFormat();
+  }
+
+  /// The maximum number of fraction digits to display.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  int? get maximumFractionDigits => _maximumFractionDigits;
+  set maximumFractionDigits(int? value) {
+    if (_maximumFractionDigits == value) {
+      return;
+    }
+    _maximumFractionDigits = value;
+    _rebuildFormat();
+  }
+
+  /// The symbol used to separate the decimal part.
+  ///
+  /// Setting this rebuilds the format and reformats the current value.
+  String? get decimalSeparator => _decimalSeparator;
+  set decimalSeparator(String? value) {
+    if (_decimalSeparator == value) {
+      return;
+    }
+    _decimalSeparator = value;
+    _rebuildFormat();
   }
 
   @override

@@ -380,6 +380,227 @@ void main() {
       });
     });
 
+    group('mutable CurrencyEditingController options', () {
+      test('changing currencyName reformats', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 100,
+        );
+        expect(controller.text, '\$100');
+        controller.currencyName = 'EUR';
+        expect(controller.text, '€100');
+        expect(controller.number, 100);
+      });
+
+      test('changing currencySymbol reformats', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 50,
+        );
+        expect(controller.text, '\$50');
+        controller.currencySymbol = '£';
+        expect(controller.text, '£50');
+        expect(controller.number, 50);
+      });
+
+      test('changing decimalSeparator reformats', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 10.5,
+        );
+        expect(controller.text, '\$10.5');
+        controller.decimalSeparator = ',';
+        expect(controller.text, '\$10,5');
+        expect(controller.number, 10.5);
+      });
+
+      test('setting same currencyName does not notify', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          value: 10,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.currencyName = 'USD';
+        expect(callCount, 0);
+      });
+
+      test('setting same currencySymbol does not notify', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          currencySymbol: '\$',
+          value: 10,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.currencySymbol = '\$';
+        expect(callCount, 0);
+      });
+
+      test('setting same decimalSeparator does not notify', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          decimalSeparator: '.',
+          value: 10,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.decimalSeparator = '.';
+        expect(callCount, 0);
+      });
+
+      test('getters return current values', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+          currencySymbol: '\$',
+          decimalSeparator: '.',
+        );
+        expect(controller.currencyName, 'USD');
+        expect(controller.currencySymbol, '\$');
+        expect(controller.decimalSeparator, '.');
+
+        controller.currencyName = 'EUR';
+        controller.currencySymbol = '€';
+        controller.decimalSeparator = ',';
+        expect(controller.currencyName, 'EUR');
+        expect(controller.currencySymbol, '€');
+        expect(controller.decimalSeparator, ',');
+      });
+
+      test('changing with null value keeps null', () {
+        final controller = CurrencyEditingController(
+          locale: 'en',
+          currencyName: 'USD',
+        );
+        controller.currencyName = 'EUR';
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+    });
+
+    group('mutable DecimalEditingController options', () {
+      test('changing minimalFractionDigits reformats', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          value: 3.5,
+        );
+        expect(controller.text, '3.5');
+        controller.minimalFractionDigits = 3;
+        expect(controller.text, '3.500');
+        expect(controller.number, 3.5);
+      });
+
+      test('changing maximumFractionDigits reformats', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          maximumFractionDigits: 4,
+          value: 3.1415,
+        );
+        expect(controller.text, '3.1415');
+        controller.maximumFractionDigits = 2;
+        expect(controller.text, '3.14');
+        // number retains full precision — display is truncated
+        expect(controller.number, 3.1415);
+      });
+
+      test('changing decimalSeparator reformats', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          value: 1.5,
+        );
+        expect(controller.text, '1.5');
+        controller.decimalSeparator = ',';
+        expect(controller.text, '1,5');
+        expect(controller.number, 1.5);
+      });
+
+      test('setting same minimalFractionDigits does not notify', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          minimalFractionDigits: 2,
+          value: 1.5,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.minimalFractionDigits = 2;
+        expect(callCount, 0);
+      });
+
+      test('setting same maximumFractionDigits does not notify', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          maximumFractionDigits: 4,
+          value: 1.5,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.maximumFractionDigits = 4;
+        expect(callCount, 0);
+      });
+
+      test('setting same decimalSeparator does not notify', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          decimalSeparator: '.',
+          value: 1.5,
+        );
+        var callCount = 0;
+        controller.addListener(() => callCount++);
+        controller.decimalSeparator = '.';
+        expect(callCount, 0);
+      });
+
+      test('getters return current values', () {
+        final controller = DecimalEditingController(
+          locale: 'en',
+          minimalFractionDigits: 1,
+          maximumFractionDigits: 4,
+          decimalSeparator: '.',
+        );
+        expect(controller.minimalFractionDigits, 1);
+        expect(controller.maximumFractionDigits, 4);
+        expect(controller.decimalSeparator, '.');
+
+        controller.minimalFractionDigits = 2;
+        controller.maximumFractionDigits = 6;
+        controller.decimalSeparator = ',';
+        expect(controller.minimalFractionDigits, 2);
+        expect(controller.maximumFractionDigits, 6);
+        expect(controller.decimalSeparator, ',');
+      });
+
+      test('changing with null value keeps null', () {
+        final controller = DecimalEditingController(locale: 'en');
+        controller.minimalFractionDigits = 2;
+        expect(controller.number, isNull);
+        expect(controller.text, '');
+      });
+    });
+
+    group('subclass type checks', () {
+      test('factory .currency returns CurrencyEditingController', () {
+        final controller = NumberEditingTextController.currency();
+        expect(controller, isA<CurrencyEditingController>());
+      });
+
+      test('factory .decimal returns DecimalEditingController', () {
+        final controller = NumberEditingTextController.decimal();
+        expect(controller, isA<DecimalEditingController>());
+      });
+
+      test('factory .integer returns IntegerEditingController', () {
+        final controller = NumberEditingTextController.integer();
+        expect(controller, isA<IntegerEditingController>());
+      });
+    });
+
     group('constructor parameter defaults', () {
       test('currency defaults to allowNegative=true', () {
         final controller = NumberEditingTextController.currency(
