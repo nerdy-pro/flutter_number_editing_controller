@@ -19,8 +19,6 @@ Drop a `NumberEditingTextController` into any `TextField`. The user sees formatt
 - Allows custom separators for grouping and decimal characters
 - Lets you change locale, currency, separators, and precision at runtime
 
-![number_editing_controller demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/screenshot.gif)
-
 ## Installation
 
 ```shell
@@ -56,6 +54,8 @@ final amount = controller.number; // e.g. 1234.56
 
 Formats whole numbers with grouping separators.
 
+![Integer formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/integer.gif)
+
 ```dart
 final controller = NumberEditingTextController.integer(locale: 'en');
 // User types "1000000" -> displays "1,000,000"
@@ -64,6 +64,8 @@ final controller = NumberEditingTextController.integer(locale: 'en');
 ### Decimal
 
 Formats numbers with a decimal part. Control minimum and maximum fraction digits.
+
+![Decimal formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/decimal.gif)
 
 ```dart
 final controller = NumberEditingTextController.decimal(
@@ -77,6 +79,8 @@ final controller = NumberEditingTextController.decimal(
 ### Currency
 
 Formats monetary amounts with a currency symbol placed according to locale rules.
+
+![Currency formatting demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/currency.gif)
 
 ```dart
 final controller = NumberEditingTextController.currency(
@@ -171,6 +175,8 @@ decimal.maximumFractionDigits = 2; // Only available on DecimalEditingController
 ### Displaying the currency symbol outside the text field
 
 Use `showCurrencySymbol: false` to hide the symbol from the formatted text, then display it as a prefix or suffix decoration on the `TextField`. The `resolvedCurrencySymbol` and `currencySymbolPosition` properties tell you what to display and where.
+
+![Currency prefix/suffix demo](https://raw.githubusercontent.com/nerdy-pro/flutter_number_editing_controller/main/img/currency-prefix.gif)
 
 ```dart
 final controller = CurrencyEditingController(
